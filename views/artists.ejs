@@ -130,7 +130,7 @@
       <% artists.forEach(artist => { %>
         <div class="artist-card" onclick="window.location.href='/artist/<%= artist._id %>'">
           <% if (artist.profileImage) { %>
-            <img src="<%= artist.profileImage %>" alt="<%= artist.artistName %>" class="artist-avatar">
+            <img src="<%= artist.profileImage %>" alt="<%= artist.artistName %>" class="artist-avatar" onerror="this.onerror=null; this.outerHTML='<div class=\'artist-avatar\' style=\'background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 2.5rem;\'><i class=\'fas fa-user\'></i></div>';">
           <% } else { %>
             <div class="artist-avatar" style="background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 2.5rem;">
               <i class="fas fa-user"></i>

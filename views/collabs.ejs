@@ -188,7 +188,7 @@
         <div class="collab-card">
           <div class="card-header">
             <% if (c.author && c.author.profileImage) { %>
-              <img src="<%= c.author.profileImage %>" class="avatar" alt="<%= c.author.artistName %>">
+              <img src="<%= c.author.profileImage %>" class="avatar" alt="<%= c.author.artistName %>" onerror="this.onerror=null; this.outerHTML='<div class=\'avatar\'></div>';">
             <% } else { %>
               <div class="avatar"></div>
             <% } %>

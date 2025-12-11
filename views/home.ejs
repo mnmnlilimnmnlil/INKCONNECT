@@ -569,9 +569,9 @@
       <% popularItems.forEach(item => { %>
         <div class="work-card" onclick="window.location.href='/items/<%= item._id %>'">
           <% if (item.image) { %>
-            <img src="<%= item.image %>" alt="<%= item.title %>" class="work-image">
+            <img src="<%= item.image %>" alt="<%= item.title %>" class="work-image" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'work-image\' style=\'background: #333; display: flex; align-items: center; justify-content: center; color: #666;\'>이미지 없음</div>';">
           <% } else { %>
-            <div class="work-image"></div>
+            <div class="work-image" style="background: #333; display: flex; align-items: center; justify-content: center; color: #666;">이미지 없음</div>
           <% } %>
           <div class="work-info">
             <div class="work-author"><%= item.author ? item.author.artistName : '알 수 없음' %></div>

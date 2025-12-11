@@ -264,7 +264,7 @@
       <% items.forEach(item => { %>
         <div class="work-card" onclick="window.location.href='/items/<%= item._id %>'">
           <% if (item.image) { %>
-            <img src="<%= item.image %>" alt="<%= item.title %>" class="work-image">
+            <img src="<%= item.image %>" alt="<%= item.title %>" class="work-image" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'work-image\' style=\'background: #333; display: flex; align-items: center; justify-content: center; color: #666;\'>이미지 없음</div>';">
           <% } else { %>
             <div class="work-image" style="background: #333; display: flex; align-items: center; justify-content: center; color: #666;">이미지 없음</div>
           <% } %>

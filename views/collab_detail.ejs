@@ -138,7 +138,7 @@
   <div class="card">
     <div class="header">
       <% if (collab.author && collab.author.profileImage) { %>
-        <img src="<%= collab.author.profileImage %>" class="avatar" alt="<%= collab.author.artistName %>">
+        <img src="<%= collab.author.profileImage %>" class="avatar" alt="<%= collab.author.artistName %>" onerror="this.onerror=null; this.outerHTML='<div class=\'avatar\'></div>';">
       <% } else { %>
         <div class="avatar"></div>
       <% } %>
@@ -195,7 +195,7 @@
       <% collab.participants.forEach(p => { %>
         <a href="/artist/<%= p._id %>" class="participant">
           <% if (p.profileImage) { %>
-            <img src="<%= p.profileImage %>" class="p-avatar">
+            <img src="<%= p.profileImage %>" class="p-avatar" onerror="this.onerror=null; this.outerHTML='<div class=\'p-avatar\'></div>';">
           <% } else { %>
             <div class="p-avatar"></div>
           <% } %>
