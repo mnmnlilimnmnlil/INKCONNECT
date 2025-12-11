@@ -1,0 +1,389 @@
+<%- include('include/header') %>
+
+<style>
+  .artist-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+  }
+  
+  .artist-header {
+    background: #2A2A2A;
+    border-radius: 12px;
+    padding: 3rem;
+    margin-bottom: 3rem;
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+  }
+  
+  .artist-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #F91536;
+    background: #333;
+    flex-shrink: 0;
+  }
+  
+  .artist-info {
+    flex: 1;
+  }
+  
+  .artist-name {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .artist-specialty {
+    color: #999;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .artist-bio {
+    color: #ccc;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+  
+  .artist-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .stat-item {
+    text-align: center;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #F91536;
+    display: block;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: #999;
+  }
+  
+  .follow-btn {
+    padding: 0.75rem 2rem;
+    background: #F91536;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .follow-btn:hover {
+    background: #E1142F;
+  }
+  
+  .follow-btn.following {
+    background: #333;
+    border: 2px solid #F91536;
+    color: #F91536;
+  }
+  
+  .follow-btn.following:hover {
+    background: #F91536;
+    color: #fff;
+  }
+  
+  .works-section {
+    margin-top: 3rem;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+  
+  .works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  
+  .work-card {
+    background: #2A2A2A;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s;
+    position: relative;
+  }
+  
+  .work-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .work-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    background: #333;
+    display: block;
+  }
+  
+  .work-info {
+    padding: 1.5rem;
+  }
+  
+  .work-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #fff;
+  }
+  
+  .work-stats {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  
+  .work-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #999;
+    font-size: 0.9rem;
+  }
+  
+  .work-stat.liked {
+    color: #F91536;
+  }
+  
+  .work-stat i {
+    font-size: 1rem;
+    transition: color 0.3s;
+  }
+  
+  .work-stat.liked i {
+    color: #F91536;
+  }
+  
+  .work-stat[onclick]:not(.liked):hover i {
+    color: #F91536;
+  }
+  
+  .work-stat[onclick] {
+    cursor: pointer;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #999;
+  }
+  
+  .empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+  }
+</style>
+
+<div class="artist-container">
+  <!-- 작가 프로필 헤더 -->
+  <div class="artist-header">
+    <% if (artist.profileImage) { %>
+      <img src="<%= artist.profileImage %>" alt="<%= artist.artistName %>" class="artist-avatar">
+    <% } else { %>
+      <div class="artist-avatar" style="background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 3rem;">
+        <i class="fas fa-user"></i>
+      </div>
+    <% } %>
+    
+    <div class="artist-info">
+      <h1 class="artist-name"><%= artist.artistName %></h1>
+      
+      <% if (artist.specialties && artist.specialties.length > 0) { %>
+        <div class="artist-specialty">
+          <%= artist.specialties.join(' & ') %>
+        </div>
+      <% } %>
+      
+      <% if (artist.bio) { %>
+        <p class="artist-bio"><%= artist.bio %></p>
+      <% } %>
+      
+      <div class="artist-stats">
+        <div class="stat-item">
+          <span class="stat-label">팔로워</span>
+          <span class="stat-number" id="followersCount">
+            <%= artist.followers ? (artist.followers.length > 1000 ? (artist.followers.length / 1000).toFixed(1) + 'K' : artist.followers.length) : 0 %>
+          </span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">작품</span>
+          <span class="stat-number"><%= items ? items.length : 0 %></span>
+        </div>
+      </div>
+      
+      <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn && typeof userId !== 'undefined' && userId !== artist._id.toString()) { %>
+        <button class="follow-btn <%= isFollowing ? 'following' : '' %>" id="followBtn" onclick="toggleFollow('<%= artist._id %>', this)">
+          <%= isFollowing ? '팔로잉' : '팔로우' %>
+        </button>
+      <% } else if (typeof isLoggedIn !== 'undefined' && isLoggedIn && typeof userId !== 'undefined' && userId === artist._id.toString()) { %>
+        <a href="/myink" class="follow-btn">내 프로필</a>
+      <% } else { %>
+        <button class="follow-btn" onclick="showLoginRequired()">팔로우</button>
+      <% } %>
+    </div>
+  </div>
+  
+  <!-- 작가의 작품 목록 -->
+  <div class="works-section">
+    <h2 class="section-title">작품</h2>
+    
+    <% if (items && items.length > 0) { %>
+      <div class="works-grid">
+        <% items.forEach(item => { %>
+          <div class="work-card" onclick="window.location.href='/items/<%= item._id %>'">
+            <% if (item.image) { %>
+              <img src="<%= item.image %>" alt="<%= item.title %>" class="work-image">
+            <% } else { %>
+              <div class="work-image" style="background: #333; display: flex; align-items: center; justify-content: center; color: #666;">이미지 없음</div>
+            <% } %>
+            <div class="work-info">
+              <div class="work-title"><%= item.title %></div>
+              <div class="work-stats">
+                <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+                  <div class="work-stat <%= (item.isLiked === true) ? 'liked' : '' %>" 
+                       onclick="event.stopPropagation(); toggleLike('<%= item._id %>', this);" 
+                       style="cursor: pointer;">
+                    <i class="fas fa-heart"></i>
+                    <span class="like-count"><%= item.likes ? item.likes.length : 0 %></span>
+                  </div>
+                  <div class="work-stat" onclick="event.stopPropagation(); window.location.href='/items/<%= item._id %>';" style="cursor: pointer;">
+                    <i class="fas fa-comment"></i>
+                    <span class="comment-count"><%= item.commentsCount || 0 %></span>
+                  </div>
+                <% } else { %>
+                  <div class="work-stat" 
+                       onclick="event.stopPropagation(); showLoginRequired();" 
+                       style="cursor: pointer;">
+                    <i class="fas fa-heart"></i>
+                    <span class="like-count"><%= item.likes ? item.likes.length : 0 %></span>
+                  </div>
+                  <div class="work-stat" onclick="event.stopPropagation(); window.location.href='/items/<%= item._id %>';" style="cursor: pointer;">
+                    <i class="fas fa-comment"></i>
+                    <span class="comment-count"><%= item.commentsCount || 0 %></span>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <h3>아직 작품이 없습니다</h3>
+        <p>이 작가는 아직 작품을 공유하지 않았습니다.</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  // 좋아요 토글
+  async function toggleLike(itemId, element) {
+    try {
+      const response = await fetch(`/items/${itemId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const statElement = element;
+        const countElement = statElement.querySelector('.like-count');
+        
+        if (data.liked) {
+          statElement.classList.add('liked');
+          countElement.textContent = data.likesCount;
+        } else {
+          statElement.classList.remove('liked');
+          countElement.textContent = data.likesCount;
+        }
+      } else {
+        const error = await response.json();
+        if (error.error === '로그인이 필요합니다.' || response.status === 401) {
+          showLoginRequired();
+        }
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  }
+  
+  // 팔로우 토글
+  async function toggleFollow(artistId, button) {
+    try {
+      const response = await fetch(`/artist/${artistId}/follow`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const followersCountEl = document.getElementById('followersCount');
+        
+        // 버튼 상태 업데이트
+        if (data.following) {
+          button.classList.add('following');
+          button.textContent = '팔로잉';
+        } else {
+          button.classList.remove('following');
+          button.textContent = '팔로우';
+        }
+        
+        // 팔로워 수 업데이트
+        if (followersCountEl) {
+          const count = data.followersCount;
+          followersCountEl.textContent = count > 1000 ? (count / 1000).toFixed(1) + 'K' : count;
+        }
+      } else {
+        const error = await response.json();
+        if (error.error === '로그인이 필요합니다.' || response.status === 401) {
+          showLoginRequired();
+        } else {
+          alert(error.error || 'An error occurred');
+        }
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      alert('An error occurred');
+    }
+  }
+  
+  // 비로그인 시 로그인 필요 메시지
+  function showLoginRequired() {
+    if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+      window.location.href = '/auth/signin';
+    }
+  }
+</script>
+
+<%- include('include/footer') %>
+

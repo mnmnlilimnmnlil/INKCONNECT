@@ -1,0 +1,308 @@
+<%- include('include/header') %>
+
+<style>
+  .inspire-container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .page-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1.1rem;
+    color: #999;
+    margin-bottom: 2rem;
+  }
+  
+  .filter-section {
+    margin-bottom: 2rem;
+  }
+  
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+  
+  .filter-btn {
+    padding: 0.5rem 1.25rem;
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .filter-btn:hover {
+    border-color: #F91536;
+    color: #F91536;
+  }
+  
+  .filter-btn.active {
+    background: #F91536;
+    border-color: #F91536;
+    color: #fff;
+  }
+  
+  .works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  
+  .work-card {
+    background: #2A2A2A;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s;
+    position: relative;
+  }
+  
+  .work-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .work-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    background: #333;
+    display: block;
+  }
+  
+  .work-info {
+    padding: 1.5rem;
+  }
+  
+  .work-author {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #fff;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .work-author:hover {
+    color: #F91536;
+  }
+  
+  .work-stats {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  
+  .work-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #999;
+    font-size: 0.9rem;
+  }
+  
+  .work-stat.liked {
+    color: #F91536;
+  }
+  
+  .work-stat i {
+    font-size: 1rem;
+    transition: color 0.3s;
+  }
+  
+  .work-stat.liked i {
+    color: #F91536;
+  }
+  
+  .work-stat[onclick]:not(.liked):hover i {
+    color: #F91536;
+  }
+  
+  .work-stat[onclick] {
+    cursor: pointer;
+  }
+  
+  .load-more {
+    text-align: center;
+    margin: 3rem 0;
+  }
+  
+  .btn-load-more {
+    padding: 1rem 2.5rem;
+    background: #F91536;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .btn-load-more:hover {
+    background: #E1142F;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #999;
+  }
+  
+  .empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+  }
+</style>
+
+<div class="inspire-container">
+  <!-- 페이지 헤더 -->
+  <div class="page-header">
+    <h1 class="page-title">Inspire</h1>
+    <p class="page-subtitle">개인적인 타투 영감 컬렉션을 만들어보세요</p>
+  </div>
+  
+  <!-- 카테고리 필터 -->
+  <div class="filter-section">
+    <div class="filter-group">
+      <% 
+        const categories = ['전체', '블랙워크', '재패니즈', '리얼리스틱', '트래디셔널', '트레쉬폴카', '올드스쿨', '뉴스쿨', '블랙앤그레이', '치카노', '라인워크', '컬러타투', '수채화타투', '다크사이드', '트라이벌'];
+        const currentCat = currentCategory || '전체';
+      %>
+      <% categories.forEach(cat => { %>
+        <% if (cat === '전체') { %>
+          <a href="/inspire" class="filter-btn <%= currentCat === '전체' ? 'active' : '' %>"><%= cat %></a>
+        <% } else { %>
+          <a href="/inspire?category=<%= encodeURIComponent(cat) %>" class="filter-btn <%= currentCat === cat ? 'active' : '' %>"><%= cat %></a>
+        <% } %>
+      <% }); %>
+    </div>
+  </div>
+  
+  <!-- 작품 그리드 -->
+  <div class="works-grid" id="worksGrid">
+    <% if (items && items.length > 0) { %>
+      <% items.forEach(item => { %>
+        <div class="work-card" onclick="window.location.href='/items/<%= item._id %>'">
+          <% if (item.image) { %>
+            <img src="<%= item.image %>" alt="<%= item.title %>" class="work-image">
+          <% } else { %>
+            <div class="work-image" style="background: #333; display: flex; align-items: center; justify-content: center; color: #666;">이미지 없음</div>
+          <% } %>
+          <div class="work-info">
+            <a href="/artist/<%= item.author ? item.author._id : '' %>" class="work-author" onclick="event.stopPropagation();">
+              <%= item.author ? item.author.artistName : '알 수 없음' %>
+            </a>
+            <div class="work-stats">
+              <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+                <div class="work-stat liked" 
+                     onclick="event.stopPropagation(); toggleLike('<%= item._id %>', this);">
+                  <i class="fas fa-heart"></i>
+                  <span class="like-count"><%= item.likes && item.likes.length ? item.likes.length : 0 %></span>
+                </div>
+              <% } else { %>
+                <div class="work-stat" 
+                     onclick="event.stopPropagation(); showLoginRequired();">
+                  <i class="fas fa-heart"></i>
+                  <span class="like-count"><%= item.likes && item.likes.length ? item.likes.length : 0 %></span>
+                </div>
+              <% } %>
+              <div class="work-stat" onclick="event.stopPropagation(); window.location.href='/items/<%= item._id %>';">
+                <i class="fas fa-comment"></i>
+                <span class="comment-count"><%= item.commentsCount || 0 %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <h3>아직 좋아요한 작품이 없습니다</h3>
+        <p>작품을 둘러보고 좋아요를 눌러 컬렉션을 만들어보세요!</p>
+        <a href="/feed" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: #F91536; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 600;">피드 둘러보기</a>
+      </div>
+    <% } %>
+  </div>
+  
+  <!-- 더 보기 버튼 -->
+  <% if (items && items.length > 0) { %>
+    <div class="load-more">
+      <button class="btn-load-more" onclick="loadMore()">더 보기</button>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  // 좋아요 토글
+  async function toggleLike(itemId, element) {
+    try {
+      const response = await fetch(`/items/${itemId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const statElement = element;
+        const countElement = statElement.querySelector('.like-count');
+        
+        if (data.liked) {
+          statElement.classList.add('liked');
+          countElement.textContent = data.likesCount;
+        } else {
+          statElement.classList.remove('liked');
+          countElement.textContent = data.likesCount;
+          // 좋아요 취소 시 해당 작품을 목록에서 제거 (선택사항)
+          // 또는 페이지 새로고침
+          setTimeout(() => {
+            location.reload();
+          }, 500);
+        }
+      } else {
+        const error = await response.json();
+        if (error.error === '로그인이 필요합니다.' || response.status === 401) {
+          showLoginRequired();
+        }
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  }
+  
+  // 비로그인 시 로그인 필요 메시지
+  function showLoginRequired() {
+    if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+      window.location.href = '/auth/signin';
+    }
+  }
+  
+  // Load More 기능 (나중에 구현 가능)
+  function loadMore() {
+    // 페이지네이션 구현 시 사용
+    console.log('Load more clicked');
+  }
+</script>
+
+<%- include('include/footer') %>
+

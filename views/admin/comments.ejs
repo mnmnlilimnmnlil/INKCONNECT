@@ -1,0 +1,250 @@
+<%- include('../include/header') %>
+
+<style>
+  .admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .admin-header {
+    margin-bottom: 2rem;
+  }
+  
+  .admin-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .admin-nav {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #333;
+  }
+  
+  .admin-nav a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: background 0.3s;
+  }
+  
+  .admin-nav a:hover,
+  .admin-nav a.active {
+    background: #F91536;
+  }
+  
+  .admin-section {
+    background: #2A2A2A;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  
+  .filter-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.75rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.9rem;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  thead {
+    background: #1A1A1A;
+  }
+  
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #333;
+  }
+  
+  th {
+    font-weight: 600;
+    color: #F91536;
+  }
+  
+  tbody tr:hover {
+    background: #333;
+  }
+  
+  .comment-content {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .btn-delete {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    background: #dc3545;
+    color: #fff;
+    transition: all 0.3s;
+  }
+  
+  .btn-delete:hover {
+    background: #c82333;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+  
+  .pagination a,
+  .pagination span {
+    padding: 0.5rem 1rem;
+    background: #2A2A2A;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    border: 1px solid #333;
+  }
+  
+  .pagination a:hover {
+    background: #F91536;
+    border-color: #F91536;
+  }
+  
+  .pagination .current {
+    background: #F91536;
+    border-color: #F91536;
+  }
+</style>
+
+<main>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>댓글 관리</h1>
+    </div>
+    
+    <nav class="admin-nav">
+      <a href="/admin/dashboard">대시보드</a>
+      <a href="/admin/artists">작가 관리</a>
+      <a href="/admin/items">작품 관리</a>
+      <a href="/admin/comments" class="active">댓글 관리</a>
+    </nav>
+    
+    <section class="admin-section">
+      <form method="GET" action="/admin/comments" class="filter-bar">
+        <input 
+          type="text" 
+          name="search" 
+          placeholder="댓글 내용 검색..." 
+          value="<%= searchQuery %>"
+          class="search-input"
+        >
+        <button type="submit" style="padding: 0.75rem 1.5rem; background: #F91536; color: #fff; border: none; border-radius: 6px; cursor: pointer;">검색</button>
+      </form>
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>댓글 내용</th>
+              <th>작성자</th>
+              <th>작품</th>
+              <th>작성일</th>
+              <th>작업</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (comments && comments.length > 0) { %>
+              <% comments.forEach(comment => { %>
+                <tr>
+                  <td class="comment-content"><%= comment.content %></td>
+                  <td><%= comment.author ? comment.author.artistName : '알 수 없음' %></td>
+                  <td>
+                    <% if (comment.item) { %>
+                      <a href="/items/<%= comment.item._id %>" style="color: #F91536; text-decoration: none;"><%= comment.item.title %></a>
+                    <% } else { %>
+                      삭제된 작품
+                    <% } %>
+                  </td>
+                  <td><%= new Date(comment.createdAt).toLocaleDateString('ko-KR') %></td>
+                  <td>
+                    <button onclick="deleteComment('<%= comment._id %>')" class="btn-delete">삭제</button>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem; color: #999;">댓글이 없습니다.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+      
+      <% if (totalPages > 1) { %>
+        <div class="pagination">
+          <% if (currentPage > 1) { %>
+            <a href="/admin/comments?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>">이전</a>
+          <% } %>
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <% if (i === currentPage) { %>
+              <span class="current"><%= i %></span>
+            <% } else { %>
+              <a href="/admin/comments?page=<%= i %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>"><%= i %></a>
+            <% } %>
+          <% } %>
+          <% if (currentPage < totalPages) { %>
+            <a href="/admin/comments?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>">다음</a>
+          <% } %>
+        </div>
+      <% } %>
+    </section>
+  </div>
+</main>
+
+<script>
+async function deleteComment(commentId) {
+  if (!confirm('정말로 이 댓글을 삭제하시겠습니까?')) return;
+  
+  try {
+    const res = await fetch(`/admin/comments/${commentId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      location.reload();
+    } else {
+      alert(data.error || '오류가 발생했습니다.');
+    }
+  } catch (err) {
+    alert('오류가 발생했습니다.');
+  }
+}
+</script>
+
+<%- include('../include/footer') %>
+

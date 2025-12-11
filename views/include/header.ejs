@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title><%= typeof title !== 'undefined' ? title : 'InkConnect' %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1A1A1A;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+    }
+  .nav-header {
+    padding: 1.25rem 1.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1A1A1A;
+    border-bottom: 1px solid #333;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .nav-toggle {
+    display: none;
+    background: none;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .nav-toggle i {
+    font-size: 1rem;
+  }
+  .nav-menu {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-left: auto; /* 데스크톱에서 오른쪽 정렬 유지 */
+  }
+  .nav-menu a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s;
+  }
+  .nav-menu a:hover {
+    color: #F91536;
+  }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: 1.25rem;
+  }
+  .action-btn {
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid #333;
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+  .action-btn:hover {
+    border-color: #F91536;
+    color: #F91536;
+  }
+  .action-btn.primary {
+    background: #F91536;
+    border-color: #F91536;
+    color: #fff;
+  }
+  .action-btn.primary:hover {
+    background: #E1142F;
+    border-color: #E1142F;
+  }
+  /* 모바일 */
+  @media (max-width: 900px) {
+    .nav-header {
+      padding: 1rem 1.25rem;
+    }
+    .nav-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-menu {
+      position: absolute;
+      top: 70px;
+      left: 0;
+      width: 100%;
+      background: #111;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      display: none;
+      margin-left: 0; /* 모바일에서는 왼쪽 정렬 */
+    }
+    .nav-menu.show {
+      display: flex;
+    }
+    .nav-actions {
+      gap: 0.5rem;
+    }
+    .action-btn {
+      padding: 0.45rem 0.75rem;
+      font-size: 0.85rem;
+    }
+    .logo {
+      font-size: 1.35rem;
+    }
+  }
+  main {
+    width: 100%;
+    max-width: 100vw;
+  }
+  </style>
+</head>
+<body>
+<header class="nav-header">
+  <div class="nav-left">
+    <button class="nav-toggle" aria-label="메뉴 열기/닫기" onclick="toggleNavMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <a href="/" class="logo">INKCONNECT</a>
+  </div>
+  <nav class="nav-menu" id="navMenu">
+    <a href="/dropink" <% if (typeof isLoggedIn === 'undefined' || !isLoggedIn) { %>onclick="event.preventDefault(); if(confirm('로그인이 필요한 기능입니다. 로그인 페이지로 이동하시겠습니까?')) window.location.href='/auth/signin';"<% } %>>Drop Ink</a>
+    <a href="/feed">Feed</a>
+    <a href="/artists">Artist</a>
+    <a href="/inspire" <% if (typeof isLoggedIn === 'undefined' || !isLoggedIn) { %>onclick="event.preventDefault(); if(confirm('로그인이 필요한 기능입니다. 로그인 페이지로 이동하시겠습니까?')) window.location.href='/auth/signin';"<% } %>>Inspire</a>
+    <a href="/collabs" <% if (typeof isLoggedIn === 'undefined' || !isLoggedIn) { %>onclick="event.preventDefault(); if(confirm('로그인이 필요한 기능입니다. 로그인 페이지로 이동하시겠습니까?')) window.location.href='/auth/signin';"<% } %>>Collab</a>
+    <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+      <a href="/myink">My Ink</a>
+      <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+        <a href="/admin/dashboard" style="color: #F91536;">관리자</a>
+      <% } %>
+    <% } else { %>
+      <a href="/myink" onclick="event.preventDefault(); if(confirm('로그인이 필요한 기능입니다. 로그인 페이지로 이동하시겠습니까?')) window.location.href='/auth/signin';" style="cursor: pointer;">My Ink</a>
+    <% } %>
+  </nav>
+  <div class="nav-actions">
+    <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+      <a href="/auth/signout" class="action-btn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    <% } else { %>
+      <a href="/auth/signin" class="action-btn primary">
+        <i class="fas fa-user"></i> Login
+      </a>
+    <% } %>
+  </div>
+</header>
+<script>
+  function toggleNavMenu() {
+    const menu = document.getElementById('navMenu');
+    menu.classList.toggle('show');
+  }
+</script>
+<main>
+
+

@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title><%= title %> - InkConnect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      padding: 2rem;
+    }
+    h1 { 
+      font-size: 2rem; 
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    .subtitle {
+      color: #888;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+    .card {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 2rem;
+      border: 1px solid #2a2a2a;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      background: #0f0f0f;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 1rem;
+    }
+    input[type="file"] {
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background: #0f0f0f;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #F91536;
+    }
+    input:focus {
+      outline: none;
+      border-color: #F91536;
+    }
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+      cursor: pointer;
+    }
+    .checkbox-item label {
+      margin: 0;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .error {
+      background: #F9153620;
+      border: 1px solid #F91536;
+      color: #ff4444;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: #F91536;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: #E1142F;
+    }
+    .link {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #888;
+    }
+    .link a {
+      color: #F91536;
+      text-decoration: none;
+    }
+    .link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>INKCONNECT에 가입하기</h1>
+    <p class="subtitle">계정을 만들고 작품을 공유해보세요</p>
+    
+    <div class="card">
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+      
+      <form action="/auth/signup" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="artistName">Artist Name <span style="color: #F91536;">*</span></label>
+          <input type="text" id="artistName" name="artistName" placeholder="작가 이름을 입력하세요" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="email">이메일 <span style="color: #F91536;">*</span></label>
+          <input type="email" id="email" name="email" placeholder="your@email.com" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="password">비밀번호 <span style="color: #F91536;">*</span></label>
+          <input type="password" id="password" name="password" placeholder="........" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="profileImage">Profile Image (선택)</label>
+          <input type="file" id="profileImage" name="profileImage" accept="image/*" />
+        </div>
+        
+        <div class="form-group">
+          <label for="bio">Bio (선택)</label>
+          <textarea id="bio" name="bio" placeholder="작가 소개를 입력하세요 (최대 500자)" maxlength="500"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>전문 분야 (선택)</label>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="blackwork" name="specialties" value="블랙워크" />
+              <label for="blackwork">블랙워크</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="japanese" name="specialties" value="재패니즈" />
+              <label for="japanese">재패니즈</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="realistic" name="specialties" value="리얼리스틱" />
+              <label for="realistic">리얼리스틱</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="traditional" name="specialties" value="트래디셔널" />
+              <label for="traditional">트래디셔널</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="trashpolka" name="specialties" value="트레쉬폴카" />
+              <label for="trashpolka">트레쉬폴카</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="oldschool" name="specialties" value="올드스쿨" />
+              <label for="oldschool">올드스쿨</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="newschool" name="specialties" value="뉴스쿨" />
+              <label for="newschool">뉴스쿨</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="blackgray" name="specialties" value="블랙앤그레이" />
+              <label for="blackgray">블랙앤그레이</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="chicano" name="specialties" value="치카노" />
+              <label for="chicano">치카노</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="linework" name="specialties" value="라인워크" />
+              <label for="linework">라인워크</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="colortattoo" name="specialties" value="컬러타투" />
+              <label for="colortattoo">컬러타투</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="watercolor" name="specialties" value="수채화타투" />
+              <label for="watercolor">수채화타투</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="darkside" name="specialties" value="다크사이드" />
+              <label for="darkside">다크사이드</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="tribal" name="specialties" value="트라이벌" />
+              <label for="tribal">트라이벌</label>
+            </div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn">회원가입</button>
+      </form>
+      
+      <div class="link">
+        이미 계정이 있으신가요? <a href="/auth/signin">로그인</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

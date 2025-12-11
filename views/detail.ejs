@@ -1,0 +1,832 @@
+<%- include('include/header') %>
+
+<style>
+  .detail-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+  }
+  
+  .detail-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+  
+  .artwork-image {
+    width: 100%;
+    border-radius: 12px;
+    background: #2A2A2A;
+    overflow: hidden;
+  }
+  
+  .artwork-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  .artwork-info {
+    background: #2A2A2A;
+    border-radius: 12px;
+    padding: 2rem;
+  }
+  
+  .artwork-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+  
+  .artist-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    margin: 1.5rem 0;
+  }
+  
+  .artist-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #F91536;
+    background: #333;
+  }
+  
+  .artist-info {
+    flex: 1;
+  }
+  
+  .artist-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  
+  .artist-name:hover {
+    color: #F91536;
+  }
+  
+  .artist-bio {
+    font-size: 0.9rem;
+    color: #999;
+  }
+  
+  .artwork-description {
+    color: #ccc;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .artwork-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .category-tag {
+    padding: 0.4rem 0.8rem;
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  
+  .category-tag:hover {
+    background: #F91536;
+    border-color: #F91536;
+    color: #fff;
+  }
+  
+  .artwork-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #999;
+    font-size: 1rem;
+  }
+  
+  .stat-item.liked {
+    color: #F91536;
+  }
+  
+  .stat-item i {
+    font-size: 1.2rem;
+    transition: color 0.3s;
+  }
+  
+  .stat-item[onclick] {
+    cursor: pointer;
+  }
+  
+  .stat-item[onclick] i {
+    cursor: pointer;
+  }
+  
+  .stat-item.liked i {
+    color: #F91536;
+  }
+  
+  .stat-item[onclick]:not(.liked):hover i {
+    color: #F91536;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+  }
+  
+  .btn-primary {
+    background: #F91536;
+    color: #fff;
+  }
+  
+  .btn-primary:hover {
+    background: #E1142F;
+  }
+  
+  .btn-outline {
+    background: transparent;
+    color: #F91536;
+    border: 2px solid #F91536;
+  }
+  
+  .btn-outline:hover {
+    background: #F91536;
+    color: #fff;
+  }
+  
+  .btn-danger {
+    background: #dc2626;
+    color: #fff;
+  }
+  
+  .btn-danger:hover {
+    background: #b91c1c;
+  }
+  
+  .edit-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 2000;
+  }
+  
+  .edit-modal-overlay.show {
+    display: flex;
+  }
+  
+  .edit-modal {
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  }
+  
+  .edit-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .edit-modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  
+  .edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 0;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #ccc;
+    font-size: 0.9rem;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+  
+  .form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+  
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #F91536;
+  }
+  
+  @media (max-width: 968px) {
+    .detail-content {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* 댓글 섹션 스타일 */
+  .comments-section {
+    background: #2A2A2A;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 3rem;
+  }
+  
+  .comments-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+  
+  .comments-count {
+    color: #F91536;
+    font-size: 1rem;
+  }
+  
+  .comment-form {
+    margin-bottom: 2rem;
+  }
+  
+  .comment-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .comment-input-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+  .comment-input-group textarea:focus {
+    outline: none;
+    border-color: #F91536;
+  }
+  
+  .comment-input-group button {
+    align-self: flex-end;
+  }
+  
+  .comment-login-prompt {
+    background: #1A1A1A;
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #999;
+  }
+  
+  .comment-login-prompt a {
+    color: #F91536;
+    text-decoration: none;
+  }
+  
+  .comment-login-prompt a:hover {
+    text-decoration: underline;
+  }
+  
+  .comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .comment-item {
+    background: #1A1A1A;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #333;
+  }
+  
+  .comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  
+  .comment-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #F91536;
+    background: #333;
+  }
+  
+  .comment-author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .comment-author-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+  }
+  
+  .comment-author-name:hover {
+    color: #F91536;
+  }
+  
+  .comment-date {
+    font-size: 0.85rem;
+    color: #999;
+  }
+  
+  .comment-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .comment-edit-btn,
+  .comment-delete-btn {
+    background: transparent;
+    border: none;
+    color: #999;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.3s;
+  }
+  
+  .comment-edit-btn:hover {
+    background: #2A2A2A;
+    color: #F91536;
+  }
+  
+  .comment-delete-btn:hover {
+    background: #2A2A2A;
+    color: #dc2626;
+  }
+  
+  .comment-content {
+    color: #ccc;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  
+  .comment-edit-form {
+    margin-top: 1rem;
+  }
+  
+  .comment-edit-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    margin-bottom: 0.75rem;
+  }
+  
+  .comment-edit-textarea:focus {
+    outline: none;
+    border-color: #F91536;
+  }
+  
+  .comment-edit-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+  
+  .comments-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #999;
+  }
+</style>
+
+<div class="detail-container">
+  <div class="detail-content">
+    <!-- 작품 이미지 -->
+    <div class="artwork-image">
+      <% if (item.image) { %>
+        <img src="<%= item.image %>" alt="<%= item.title %>">
+      <% } else { %>
+        <div style="width: 100%; height: 500px; background: #333; display: flex; align-items: center; justify-content: center; color: #666;">No Image</div>
+      <% } %>
+    </div>
+    
+    <!-- 작품 정보 -->
+    <div class="artwork-info">
+      <h1 class="artwork-title"><%= item.title %></h1>
+      
+      <!-- 작가 정보 -->
+      <% if (item.author) { %>
+        <div class="artist-section">
+          <% if (item.author.profileImage) { %>
+            <img src="<%= item.author.profileImage %>" alt="<%= item.author.artistName %>" class="artist-avatar">
+          <% } else { %>
+            <div class="artist-avatar" style="background: #333;"></div>
+          <% } %>
+          <div class="artist-info">
+            <a href="/artist/<%= item.author._id %>" class="artist-name">
+              <%= item.author.artistName %>
+            </a>
+            <% if (item.author.bio) { %>
+              <div class="artist-bio"><%= item.author.bio.substring(0, 50) %><%= item.author.bio.length > 50 ? '...' : '' %></div>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+      
+      <!-- 작품 설명 -->
+      <% if (item.description) { %>
+        <div class="artwork-description"><%= item.description %></div>
+      <% } %>
+      
+      <!-- 카테고리 -->
+      <% if (item.category && item.category.length > 0) { %>
+        <div class="artwork-categories">
+          <% item.category.forEach(cat => { %>
+            <a href="/feed?category=<%= encodeURIComponent(cat) %>" class="category-tag">
+              <%= cat %>
+            </a>
+          <% }); %>
+        </div>
+      <% } %>
+      
+      <!-- 통계 (좋아요) -->
+      <div class="artwork-stats">
+        <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+          <div class="stat-item <%= item.isLiked ? 'liked' : '' %>" 
+               onclick="toggleLike('<%= item._id %>', this);">
+            <i class="fas fa-heart"></i>
+            <span class="like-count"><%= item.likes ? item.likes.length : 0 %></span>
+          </div>
+        <% } else { %>
+          <div class="stat-item" style="cursor: pointer;" onclick="showLoginRequired();">
+            <i class="fas fa-heart"></i>
+            <span class="like-count"><%= item.likes ? item.likes.length : 0 %></span>
+          </div>
+        <% } %>
+      </div>
+      
+      <!-- 액션 버튼 (작가 본인만) -->
+      <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn && typeof userId !== 'undefined' && item.author && userId === item.author._id.toString()) { %>
+        <div class="action-buttons">
+          <button type="button" onclick="toggleEditModal(true)" class="btn btn-outline">수정</button>
+          <form action="/items/<%= item._id %>?_method=DELETE" method="POST" style="display: inline;">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+          </form>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  
+  <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn && typeof userId !== 'undefined' && item.author && userId === item.author._id.toString()) { %>
+    <!-- 수정 모달 -->
+    <div class="edit-modal-overlay" id="editModal">
+      <div class="edit-modal">
+        <div class="edit-modal-header">
+          <div class="edit-modal-title">작품 수정</div>
+          <button type="button" class="btn btn-outline" onclick="toggleEditModal(false)" style="padding: 0.35rem 0.75rem;">닫기</button>
+        </div>
+        <form action="/items/<%= item._id %>?_method=PUT" method="POST" enctype="multipart/form-data" class="edit-form" id="editForm">
+          <div class="form-group">
+            <label>제목</label>
+            <input type="text" name="title" value="<%= item.title %>" required>
+          </div>
+          <div class="form-group">
+            <label>설명</label>
+            <textarea name="description"><%= item.description || '' %></textarea>
+          </div>
+          <div class="form-group">
+            <label>이미지 변경</label>
+            <input type="file" name="image" accept="image/*">
+          </div>
+          <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+            <button type="button" class="btn btn-outline" onclick="toggleEditModal(false)">취소</button>
+            <button type="submit" class="btn btn-primary">저장하기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  <% } %>
+  
+  <!-- 댓글 섹션 -->
+  <div class="comments-section">
+    <h2 class="comments-title">댓글 <span class="comments-count"><%= comments ? comments.length : 0 %></span></h2>
+    
+    <!-- 댓글 작성 폼 (로그인한 사용자만) -->
+    <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+      <form class="comment-form" id="commentForm">
+        <div class="comment-input-group">
+          <textarea 
+            id="commentContent" 
+            placeholder="댓글을 입력하세요..." 
+            rows="3"
+            required
+          ></textarea>
+          <button type="submit" class="btn btn-primary">댓글 작성</button>
+        </div>
+      </form>
+    <% } else { %>
+      <div class="comment-login-prompt">
+        <p>댓글을 작성하려면 <a href="/auth/signin">로그인</a>이 필요합니다.</p>
+      </div>
+    <% } %>
+    
+    <!-- 댓글 목록 -->
+    <div class="comments-list" id="commentsList">
+      <% if (comments && comments.length > 0) { %>
+        <% comments.forEach(comment => { %>
+          <div class="comment-item" data-comment-id="<%= comment._id %>">
+            <div class="comment-header">
+              <div class="comment-author">
+                <% if (comment.author && comment.author.profileImage) { %>
+                  <img src="<%= comment.author.profileImage %>" alt="<%= comment.author.artistName %>" class="comment-avatar">
+                <% } else { %>
+                  <div class="comment-avatar" style="background: #333;"></div>
+                <% } %>
+                <div class="comment-author-info">
+                  <a href="/artist/<%= comment.author ? comment.author._id : '' %>" class="comment-author-name">
+                    <%= comment.author ? comment.author.artistName : '알 수 없음' %>
+                  </a>
+                  <span class="comment-date"><%= new Date(comment.createdAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span>
+                </div>
+              </div>
+              <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn && typeof userId !== 'undefined' && comment.author && userId === comment.author._id.toString()) { %>
+                <div class="comment-actions">
+                  <button class="comment-edit-btn" data-comment-id="<%= comment._id %>" data-comment-content="<%= comment.content.replace(/"/g, '&quot;').replace(/'/g, '&#39;') %>" onclick="editComment('<%= comment._id %>', this.getAttribute('data-comment-content'))">수정</button>
+                  <button class="comment-delete-btn" onclick="deleteComment('<%= comment._id %>')">삭제</button>
+                </div>
+              <% } %>
+            </div>
+            <div class="comment-content" id="comment-content-<%= comment._id %>">
+              <%= comment.content %>
+            </div>
+            <div class="comment-edit-form" id="comment-edit-form-<%= comment._id %>" style="display: none;">
+              <textarea class="comment-edit-textarea" id="comment-edit-textarea-<%= comment._id %>" rows="3"><%= comment.content %></textarea>
+              <div class="comment-edit-actions">
+                <button class="btn btn-primary" onclick="saveComment('<%= comment._id %>')">저장</button>
+                <button class="btn btn-outline" onclick="cancelEdit('<%= comment._id %>')">취소</button>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="comments-empty">
+          <p>아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 좋아요 토글
+  async function toggleLike(itemId, element) {
+    try {
+      const response = await fetch(`/items/${itemId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const statElement = element;
+        const countElement = statElement.querySelector('.like-count');
+        
+        if (data.liked) {
+          statElement.classList.add('liked');
+          countElement.textContent = data.likesCount;
+        } else {
+          statElement.classList.remove('liked');
+          countElement.textContent = data.likesCount;
+        }
+      } else {
+        const error = await response.json();
+        if (error.error === '로그인이 필요합니다.' || response.status === 401) {
+          window.location.href = '/auth/signin';
+        }
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  }
+  
+  // 수정 모달 토글
+  function toggleEditModal(show) {
+    const modal = document.getElementById('editModal');
+    if (!modal) return;
+    if (show) {
+      modal.classList.add('show');
+      return;
+    }
+    modal.classList.remove('show');
+  }
+  
+  // 비로그인 시 로그인 필요 메시지
+  function showLoginRequired() {
+    if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+      window.location.href = '/auth/signin';
+    }
+  }
+  
+  // 댓글 작성
+  const commentForm = document.getElementById('commentForm');
+  if (commentForm) {
+    commentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const content = document.getElementById('commentContent').value.trim();
+      
+      if (!content) {
+        alert('댓글 내용을 입력해주세요.');
+        return;
+      }
+      
+      try {
+        const itemId = '<%= item._id %>';
+        const response = await fetch(`/items/${itemId}/comments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ content })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          location.reload(); // 페이지 새로고침으로 댓글 목록 업데이트
+        } else {
+          const error = await response.json();
+          alert(error.error || '댓글 작성에 실패했습니다.');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('댓글 작성 중 오류가 발생했습니다.');
+      }
+    });
+  }
+  
+  // 댓글 수정
+  function editComment(commentId, currentContent) {
+    const contentDiv = document.getElementById(`comment-content-${commentId}`);
+    const editForm = document.getElementById(`comment-edit-form-${commentId}`);
+    
+    if (contentDiv && editForm) {
+      contentDiv.style.display = 'none';
+      editForm.style.display = 'block';
+      document.getElementById(`comment-edit-textarea-${commentId}`).value = currentContent;
+    }
+  }
+  
+  // 댓글 수정 취소
+  function cancelEdit(commentId) {
+    const contentDiv = document.getElementById(`comment-content-${commentId}`);
+    const editForm = document.getElementById(`comment-edit-form-${commentId}`);
+    
+    if (contentDiv && editForm) {
+      contentDiv.style.display = 'block';
+      editForm.style.display = 'none';
+    }
+  }
+  
+  // 댓글 저장
+  async function saveComment(commentId) {
+    const textarea = document.getElementById(`comment-edit-textarea-${commentId}`);
+    const content = textarea.value.trim();
+    
+    if (!content) {
+      alert('댓글 내용을 입력해주세요.');
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/comments/${commentId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content })
+      });
+      
+      if (response.ok) {
+        location.reload(); // 페이지 새로고침으로 댓글 목록 업데이트
+      } else {
+        const error = await response.json();
+        alert(error.error || '댓글 수정에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      alert('댓글 수정 중 오류가 발생했습니다.');
+    }
+  }
+  
+  // 댓글 삭제
+  async function deleteComment(commentId) {
+    if (!confirm('정말 댓글을 삭제하시겠습니까?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        location.reload(); // 페이지 새로고침으로 댓글 목록 업데이트
+      } else {
+        const error = await response.json();
+        alert(error.error || '댓글 삭제에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      alert('댓글 삭제 중 오류가 발생했습니다.');
+    }
+  }
+</script>
+
+<%- include('include/footer') %>

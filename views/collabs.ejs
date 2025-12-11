@@ -1,0 +1,280 @@
+<%- include('include/header') %>
+
+<style>
+  .collab-container {
+    max-width: 1100px;
+    margin: 2rem auto 3rem;
+    padding: 0 1.5rem;
+  }
+  .collab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .collab-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .filter-btn {
+    padding: 0.45rem 0.85rem;
+    background: #2A2A2A;
+    border: 1px solid #333;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  .filter-btn.active {
+    border-color: #F91536;
+    color: #F91536;
+  }
+  .search-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+  }
+  .collab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+  .collab-card {
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .card-header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #333;
+    border: 1px solid #444;
+  }
+  .author {
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .author:hover { color: #F91536; }
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    background: #333;
+    border: 1px solid #444;
+    color: #fff;
+    margin-left: 0.35rem;
+  }
+  .status {
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    border: 1px solid #444;
+    color: #fff;
+    display: inline-block;
+  }
+  .status.open { border-color: #22c55e; color: #22c55e; }
+  .status.in_progress { border-color: #eab308; color: #eab308; }
+  .status.closed { border-color: #f87171; color: #f87171; }
+  .title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+  }
+  .title:hover { color: #F91536; }
+  .meta {
+    color: #aaa;
+    font-size: 0.9rem;
+  }
+  .styles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .style-chip {
+    padding: 0.25rem 0.55rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 10px;
+    color: #ccc;
+    font-size: 0.8rem;
+  }
+  .card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.35rem;
+  }
+  .stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #ccc;
+    cursor: pointer;
+  }
+  .stat.liked { color: #F91536; }
+  .stat .fa-user-friends { color: #22c55e; }
+  .new-btn {
+    padding: 0.65rem 1rem;
+    background: #F91536;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  @media (max-width: 768px) {
+    .collab-header { flex-direction: column; align-items: flex-start; }
+    .search-row { flex-direction: column; }
+    .collab-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  }
+</style>
+
+<div class="collab-container">
+  <div class="collab-header">
+    <div class="collab-title">Collab 보드</div>
+    <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn && typeof userRole !== 'undefined' && userRole === 'artist') { %>
+      <a href="/collabs/new" class="new-btn">새 콜라보 작성</a>
+    <% } %>
+  </div>
+
+  <div class="search-row">
+    <form action="/collabs" method="GET" style="display: contents;">
+      <input type="text" name="search" class="search-input" placeholder="제목, 설명, 위치 검색..." value="<%= searchQuery || '' %>">
+    </form>
+  </div>
+
+  <div class="filters">
+    <% const statusOptions = ['all', 'open', 'closed']; %>
+    <% const statusLabel = { all: '전체', open: '모집중', closed: '마감' }; %>
+    <% statusOptions.forEach(st => { %>
+      <a class="filter-btn <%= currentStatus === st ? 'active' : '' %>" href="/collabs?<%= st !== 'all' ? 'status=' + st : '' %><%= searchQuery ? (st !== 'all' ? '&' : '') + 'search=' + encodeURIComponent(searchQuery) : '' %>"><%= statusLabel[st] %></a>
+    <% }); %>
+  </div>
+
+  <div class="collab-grid">
+    <% if (collabs && collabs.length > 0) { %>
+      <% collabs.forEach(c => { %>
+        <div class="collab-card">
+          <div class="card-header">
+            <% if (c.author && c.author.profileImage) { %>
+              <img src="<%= c.author.profileImage %>" class="avatar" alt="<%= c.author.artistName %>">
+            <% } else { %>
+              <div class="avatar"></div>
+            <% } %>
+            <div>
+              <a href="/artist/<%= c.author ? c.author._id : '' %>" class="author"><%= c.author ? c.author.artistName : '알 수 없음' %></a>
+              <% if (c.author && c.author.verified) { %><span class="badge">Verified</span><% } %>
+              <div class="meta"><%= new Date(c.createdAt).toLocaleDateString('ko-KR') %></div>
+            </div>
+            <% const stLabel = { open: '모집중', closed: '마감' }; %>
+            <span class="status <%= c.derivedStatus %>" style="margin-left:auto;"><%= stLabel[c.derivedStatus] || c.derivedStatus %></span>
+          </div>
+
+          <a href="/collabs/<%= c._id %>" class="title"><%= c.title %></a>
+          <% if (c.location) { %><div class="meta"><%= c.location %></div><% } %>
+          <% if (c.startDate || c.endDate) { %>
+            <div class="meta">
+              기간: 
+              <% if (c.startDate) { %><%= new Date(c.startDate).toLocaleDateString('ko-KR') %><% } %>
+              <% if (c.startDate && c.endDate) { %> ~ <% } %>
+              <% if (c.endDate) { %><%= new Date(c.endDate).toLocaleDateString('ko-KR') %><% } %>
+            </div>
+          <% } %>
+          <% if (c.styles && c.styles.length > 0) { %>
+            <div class="styles">
+              <% c.styles.forEach(s => { %><span class="style-chip"><%= s %></span><% }); %>
+            </div>
+          <% } %>
+
+          <div class="card-actions">
+            <div style="display:flex; gap:0.75rem; align-items:center;">
+              <span class="stat <%= c.isParticipating ? 'liked' : '' %>" onclick="toggleParticipate('<%= c._id %>', this)">
+                <i class="fas fa-user-friends"></i><span class="p-count"><%= c.participantsCount || 0 %></span>
+              </span>
+              <span class="stat <%= c.isLiked ? 'liked' : '' %>" onclick="toggleCollabLike('<%= c._id %>', this)">
+                <i class="fas fa-heart"></i><span class="l-count"><%= c.likesCount || 0 %></span>
+              </span>
+            </div>
+            <a href="/collabs/<%= c._id %>" class="filter-btn" style="padding:0.35rem 0.7rem;">보기</a>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div style="color:#aaa; text-align:center; grid-column:1/-1; padding:2rem 0;">콜라보 게시글이 없습니다.</div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  async function toggleParticipate(id, el) {
+    try {
+      const res = await fetch(`/collabs/${id}/participate`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      if (res.ok) {
+        const data = await res.json();
+        const countEl = el.querySelector('.p-count');
+        if (countEl) countEl.textContent = data.participantsCount;
+        el.classList.toggle('liked', data.participating);
+      } else if (res.status === 401) {
+        if (confirm('로그인이 필요합니다. 로그인 하시겠습니까?')) window.location.href = '/auth/signin';
+      } else {
+        const err = await res.json();
+        alert(err.error || '오류가 발생했습니다.');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function toggleCollabLike(id, el) {
+    try {
+      const res = await fetch(`/collabs/${id}/like`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      if (res.ok) {
+        const data = await res.json();
+        const countEl = el.querySelector('.l-count');
+        if (countEl) countEl.textContent = data.likesCount;
+        el.classList.toggle('liked', data.liked);
+      } else if (res.status === 401) {
+        if (confirm('로그인이 필요합니다. 로그인 하시겠습니까?')) window.location.href = '/auth/signin';
+      } else {
+        const err = await res.json();
+        alert(err.error || '오류가 발생했습니다.');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+</script>
+
+<%- include('include/footer') %>
+

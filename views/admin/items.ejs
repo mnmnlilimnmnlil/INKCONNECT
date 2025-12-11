@@ -1,0 +1,240 @@
+<%- include('../include/header') %>
+
+<style>
+  .admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .admin-header {
+    margin-bottom: 2rem;
+  }
+  
+  .admin-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .admin-nav {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #333;
+  }
+  
+  .admin-nav a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: background 0.3s;
+  }
+  
+  .admin-nav a:hover,
+  .admin-nav a.active {
+    background: #F91536;
+  }
+  
+  .admin-section {
+    background: #2A2A2A;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  
+  .filter-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.75rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.9rem;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  thead {
+    background: #1A1A1A;
+  }
+  
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #333;
+  }
+  
+  th {
+    font-weight: 600;
+    color: #F91536;
+  }
+  
+  tbody tr:hover {
+    background: #333;
+  }
+  
+  .btn-delete {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    background: #dc3545;
+    color: #fff;
+    transition: all 0.3s;
+  }
+  
+  .btn-delete:hover {
+    background: #c82333;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+  
+  .pagination a,
+  .pagination span {
+    padding: 0.5rem 1rem;
+    background: #2A2A2A;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    border: 1px solid #333;
+  }
+  
+  .pagination a:hover {
+    background: #F91536;
+    border-color: #F91536;
+  }
+  
+  .pagination .current {
+    background: #F91536;
+    border-color: #F91536;
+  }
+</style>
+
+<main>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>작품 관리</h1>
+    </div>
+    
+    <nav class="admin-nav">
+      <a href="/admin/dashboard">대시보드</a>
+      <a href="/admin/artists">작가 관리</a>
+      <a href="/admin/items" class="active">작품 관리</a>
+      <a href="/admin/comments">댓글 관리</a>
+    </nav>
+    
+    <section class="admin-section">
+      <form method="GET" action="/admin/items" class="filter-bar">
+        <input 
+          type="text" 
+          name="search" 
+          placeholder="작품 제목 또는 설명 검색..." 
+          value="<%= searchQuery %>"
+          class="search-input"
+        >
+        <button type="submit" style="padding: 0.75rem 1.5rem; background: #F91536; color: #fff; border: none; border-radius: 6px; cursor: pointer;">검색</button>
+      </form>
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>작품 제목</th>
+              <th>작가</th>
+              <th>좋아요</th>
+              <th>댓글</th>
+              <th>업로드일</th>
+              <th>작업</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (items && items.length > 0) { %>
+              <% items.forEach(item => { %>
+                <tr>
+                  <td><%= item.title %></td>
+                  <td><%= item.author ? item.author.artistName : '알 수 없음' %></td>
+                  <td><%= item.likesCount || 0 %></td>
+                  <td><%= item.commentsCount || 0 %></td>
+                  <td><%= new Date(item.createdAt).toLocaleDateString('ko-KR') %></td>
+                  <td>
+                    <a href="/items/<%= item._id %>" style="color: #F91536; text-decoration: none; margin-right: 0.5rem;">보기</a>
+                    <button onclick="deleteItem('<%= item._id %>', '<%= item.title %>')" class="btn-delete">삭제</button>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 2rem; color: #999;">작품이 없습니다.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+      
+      <% if (totalPages > 1) { %>
+        <div class="pagination">
+          <% if (currentPage > 1) { %>
+            <a href="/admin/items?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>">이전</a>
+          <% } %>
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <% if (i === currentPage) { %>
+              <span class="current"><%= i %></span>
+            <% } else { %>
+              <a href="/admin/items?page=<%= i %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>"><%= i %></a>
+            <% } %>
+          <% } %>
+          <% if (currentPage < totalPages) { %>
+            <a href="/admin/items?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>">다음</a>
+          <% } %>
+        </div>
+      <% } %>
+    </section>
+  </div>
+</main>
+
+<script>
+async function deleteItem(itemId, itemTitle) {
+  if (!confirm(`정말로 "${itemTitle}" 작품을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 관련된 모든 댓글도 함께 삭제됩니다.`)) return;
+  
+  try {
+    const res = await fetch(`/admin/items/${itemId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      location.reload();
+    } else {
+      alert(data.error || '오류가 발생했습니다.');
+    }
+  } catch (err) {
+    alert('오류가 발생했습니다.');
+  }
+}
+</script>
+
+<%- include('../include/footer') %>
+

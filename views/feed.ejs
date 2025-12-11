@@ -1,0 +1,400 @@
+<%- include('include/header') %>
+
+<style>
+  .feed-container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .page-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1.1rem;
+    color: #999;
+    margin-bottom: 2rem;
+  }
+  
+  .search-section {
+    margin-bottom: 2rem;
+  }
+  
+  .search-bar {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-bar:focus {
+    outline: none;
+    border-color: #F91536;
+  }
+  
+  .search-bar::placeholder {
+    color: #666;
+  }
+  
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  
+  .filter-btn {
+    padding: 0.5rem 1.25rem;
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .filter-btn:hover {
+    border-color: #F91536;
+    color: #F91536;
+  }
+  
+  .filter-btn.active {
+    background: #F91536;
+    border-color: #F91536;
+    color: #fff;
+  }
+  
+  .works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  
+  .work-card {
+    background: #2A2A2A;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s;
+    position: relative;
+  }
+  
+  .work-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .work-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    background: #333;
+    display: block;
+  }
+  
+  .work-info {
+    padding: 1.5rem;
+  }
+  
+  .work-author {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #fff;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .work-author:hover {
+    color: #F91536;
+  }
+  
+  .work-stats {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  
+  .work-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #999;
+    font-size: 0.9rem;
+  }
+  
+  .work-stat.liked {
+    color: #F91536;
+  }
+  
+  .work-stat i {
+    font-size: 1rem;
+    transition: color 0.3s;
+  }
+  
+  .work-stat[onclick] {
+    cursor: pointer;
+  }
+  
+  .work-stat[onclick] i {
+    cursor: pointer;
+  }
+  
+  .work-stat.liked i {
+    color: #F91536;
+  }
+  
+  .work-stat[onclick]:not(.liked):hover i {
+    color: #F91536;
+  }
+  
+  .load-more {
+    text-align: center;
+    margin: 3rem 0;
+  }
+  
+  .btn-load-more {
+    padding: 1rem 2.5rem;
+    background: #F91536;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .btn-load-more:hover {
+    background: #E1142F;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #999;
+  }
+  
+  .empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 3rem 0;
+  }
+  
+  .pagination-btn {
+    padding: 0.75rem 1.5rem;
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .pagination-btn:hover {
+    background: #F91536;
+    border-color: #F91536;
+    color: #fff;
+  }
+  
+  .pagination-info {
+    color: #999;
+    font-size: 0.9rem;
+  }
+</style>
+
+<div class="feed-container">
+  <!-- 페이지 헤더 -->
+  <div class="page-header">
+    <h1 class="page-title">Feed</h1>
+    <p class="page-subtitle">커뮤니티의 최신 작품들을 발견해보세요</p>
+  </div>
+  
+  <!-- 검색 및 필터 -->
+  <div class="search-section">
+    <input type="text" class="search-bar" placeholder="작품, 작가, 태그 검색..." id="searchInput" value="<%= searchQuery || '' %>">
+    
+    <div class="filter-group">
+      <% 
+        const categories = ['전체', '블랙워크', '재패니즈', '리얼리스틱', '트래디셔널', '트레쉬폴카', '올드스쿨', '뉴스쿨', '블랙앤그레이', '치카노', '라인워크', '컬러타투', '수채화타투', '다크사이드', '트라이벌'];
+        const currentCat = currentCategory || '전체';
+        const searchParam = searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '';
+      %>
+      <% categories.forEach(cat => { %>
+        <% if (cat === '전체') { %>
+          <a href="/feed<%= searchQuery ? '?search=' + encodeURIComponent(searchQuery) : '' %>" class="filter-btn <%= currentCat === '전체' ? 'active' : '' %>"><%= cat %></a>
+        <% } else { %>
+          <a href="/feed?category=<%= encodeURIComponent(cat) %><%= searchParam %>" class="filter-btn <%= currentCat === cat ? 'active' : '' %>"><%= cat %></a>
+        <% } %>
+      <% }); %>
+    </div>
+  </div>
+  
+  <!-- 작품 그리드 -->
+  <div class="works-grid" id="worksGrid">
+    <% if (items && items.length > 0) { %>
+      <% items.forEach(item => { %>
+        <div class="work-card" onclick="window.location.href='/items/<%= item._id %>'">
+          <% if (item.image) { %>
+            <img src="<%= item.image %>" alt="<%= item.title %>" class="work-image">
+          <% } else { %>
+            <div class="work-image" style="background: #333; display: flex; align-items: center; justify-content: center; color: #666;">이미지 없음</div>
+          <% } %>
+          <div class="work-info">
+            <a href="/artist/<%= item.author ? item.author._id : '' %>" class="work-author" onclick="event.stopPropagation();">
+              <%= item.author ? item.author.artistName : '알 수 없음' %>
+            </a>
+            <div class="work-stats">
+              <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+                <div class="work-stat <%= (item.isLiked === true) ? 'liked' : '' %>" 
+                     onclick="event.stopPropagation(); toggleLike('<%= item._id %>', this);">
+                  <i class="fas fa-heart"></i>
+                  <span class="like-count"><%= item.likes && item.likes.length ? item.likes.length : 0 %></span>
+                </div>
+                <div class="work-stat" onclick="event.stopPropagation(); window.location.href='/items/<%= item._id %>';">
+                  <i class="fas fa-comment"></i>
+                  <span class="comment-count"><%= item.commentsCount || 0 %></span>
+                </div>
+              <% } else { %>
+                <div class="work-stat" style="cursor: pointer;" onclick="event.stopPropagation(); showLoginRequired();">
+                  <i class="fas fa-heart"></i>
+                  <span class="like-count"><%= item.likes && item.likes.length ? item.likes.length : 0 %></span>
+                </div>
+                <div class="work-stat" onclick="event.stopPropagation(); window.location.href='/items/<%= item._id %>';">
+                  <i class="fas fa-comment"></i>
+                  <span class="comment-count"><%= item.commentsCount || 0 %></span>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <h3>아직 작품이 없습니다</h3>
+        <p>첫 번째로 작품을 공유해보세요!</p>
+      </div>
+    <% } %>
+  </div>
+  
+  <!-- 페이지네이션 -->
+  <% if (items && items.length > 0 && totalPages > 1) { %>
+    <div class="pagination">
+      <% if (hasPrevPage) { %>
+        <a href="/feed?page=<%= currentPage - 1 %><%= currentCategory && currentCategory !== '전체' ? '&category=' + encodeURIComponent(currentCategory) : '' %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>" class="pagination-btn">
+          <i class="fas fa-chevron-left"></i> 이전
+        </a>
+      <% } %>
+      
+      <div class="pagination-info">
+        페이지 <%= currentPage %> / <%= totalPages %>
+      </div>
+      
+      <% if (hasNextPage) { %>
+        <a href="/feed?page=<%= currentPage + 1 %><%= currentCategory && currentCategory !== '전체' ? '&category=' + encodeURIComponent(currentCategory) : '' %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>" class="pagination-btn">
+          다음 <i class="fas fa-chevron-right"></i>
+        </a>
+      <% } %>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  // 좋아요 토글
+  async function toggleLike(itemId, element) {
+    try {
+      const response = await fetch(`/items/${itemId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const statElement = element;
+        const countElement = statElement.querySelector('.like-count');
+        
+        if (data.liked) {
+          statElement.classList.add('liked');
+          countElement.textContent = data.likesCount;
+        } else {
+          statElement.classList.remove('liked');
+          countElement.textContent = data.likesCount;
+        }
+      } else {
+        const error = await response.json();
+        if (error.error === '로그인이 필요합니다.' || response.status === 401) {
+          window.location.href = '/auth/signin';
+        }
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  }
+  
+  
+  // 비로그인 시 로그인 필요 메시지
+  function showLoginRequired() {
+    if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+      window.location.href = '/auth/signin';
+    }
+  }
+  
+  // 검색 기능
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const query = this.value.trim();
+        const currentCategory = '<%= currentCategory || "전체" %>';
+        let url = '/feed';
+        const params = [];
+        
+        if (query) {
+          params.push(`search=${encodeURIComponent(query)}`);
+        }
+        if (currentCategory && currentCategory !== '전체') {
+          params.push(`category=${encodeURIComponent(currentCategory)}`);
+        }
+        
+        if (params.length > 0) {
+          url += '?' + params.join('&');
+        }
+        
+        window.location.href = url;
+      }
+    });
+  }
+</script>
+
+<%- include('include/footer') %>
+

@@ -1,0 +1,291 @@
+<%- include('include/header') %>
+
+<style>
+  .collab-wrap {
+    max-width: 960px;
+    margin: 2rem auto 3rem;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+  }
+  .card {
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 1.75rem;
+  }
+  .header {
+    display: flex;
+    gap: 0.85rem;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #333;
+    border: 1px solid #444;
+  }
+  .author {
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .author:hover { color: #F91536; }
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    background: #333;
+    border: 1px solid #444;
+    color: #fff;
+    margin-left: 0.35rem;
+  }
+  .status {
+    padding: 0.2rem 0.65rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    border: 1px solid #444;
+    color: #fff;
+    margin-left: auto;
+  }
+  .status.open { border-color: #22c55e; color: #22c55e; }
+  .status.in_progress { border-color: #eab308; color: #eab308; }
+  .status.closed { border-color: #f87171; color: #f87171; }
+  .title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.75rem;
+  }
+  .meta { color: #aaa; margin-bottom: 0.5rem; }
+  .styles { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0 1rem; }
+  .style-chip {
+    padding: 0.3rem 0.6rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 10px;
+    color: #ccc;
+    font-size: 0.85rem;
+  }
+  .desc {
+    color: #ddd;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin-top: 0.75rem;
+  }
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .btn {
+    border: 1px solid #444;
+    background: #1A1A1A;
+    color: #fff;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .btn.primary { background: #F91536; border-color: #F91536; }
+  .btn.soft { background: #2A2A2A; }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .stat-row { display: flex; gap: 1rem; margin-top: 0.5rem; color: #ccc; }
+  .stat { display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; }
+  .stat.liked { color: #F91536; }
+  .stat .fa-user-friends { color: #22c55e; }
+  .side-card h3 { color: #fff; margin-bottom: 0.75rem; }
+  .participant {
+    display: flex;
+    gap: 0.65rem;
+    align-items: center;
+    margin-bottom: 0.6rem;
+    color: #fff;
+    text-decoration: none;
+  }
+  .participant:hover { color: #F91536; }
+  .p-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #333;
+    border: 1px solid #444;
+  }
+  .status-form {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  .status-select {
+    flex: 1;
+    padding: 0.55rem 0.75rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+  }
+  @media (max-width: 900px) {
+    .collab-wrap { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="collab-wrap">
+  <div class="card">
+    <div class="header">
+      <% if (collab.author && collab.author.profileImage) { %>
+        <img src="<%= collab.author.profileImage %>" class="avatar" alt="<%= collab.author.artistName %>">
+      <% } else { %>
+        <div class="avatar"></div>
+      <% } %>
+      <div>
+        <a href="/artist/<%= collab.author ? collab.author._id : '' %>" class="author"><%= collab.author ? collab.author.artistName : '알 수 없음' %></a>
+        <% if (collab.author && collab.author.verified) { %><span class="badge">Verified</span><% } %>
+        <div class="meta"><%= new Date(collab.createdAt).toLocaleDateString('ko-KR') %></div>
+      </div>
+      <% const stLabel = { open: '모집중', closed: '마감' }; %>
+      <span class="status <%= collab.derivedStatus %>"><%= stLabel[collab.derivedStatus] || collab.derivedStatus %></span>
+    </div>
+    <div class="title"><%= collab.title %></div>
+    <% if (collab.location) { %><div class="meta"><%= collab.location %></div><% } %>
+    <% if (collab.startDate || collab.endDate) { %>
+      <div class="meta">
+        기간:
+        <% if (collab.startDate) { %><%= new Date(collab.startDate).toLocaleDateString('ko-KR') %><% } %>
+        <% if (collab.startDate && collab.endDate) { %> ~ <% } %>
+        <% if (collab.endDate) { %><%= new Date(collab.endDate).toLocaleDateString('ko-KR') %><% } %>
+      </div>
+    <% } %>
+    <% if (collab.styles && collab.styles.length > 0) { %>
+      <div class="styles">
+        <% collab.styles.forEach(s => { %><span class="style-chip"><%= s %></span><% }); %>
+      </div>
+    <% } %>
+    <% if (collab.description) { %>
+      <div class="desc"><%= collab.description %></div>
+    <% } %>
+
+    <div class="stat-row">
+      <span class="stat <%= collab.isParticipating ? 'liked' : '' %>" onclick="toggleParticipate('<%= collab._id %>', this)">
+        <i class="fas fa-user-friends"></i><span class="p-count"><%= collab.participantsCount || 0 %></span>
+      </span>
+      <span class="stat <%= collab.isLiked ? 'liked' : '' %>" onclick="toggleCollabLike('<%= collab._id %>', this)">
+        <i class="fas fa-heart"></i><span class="l-count"><%= collab.likesCount || 0 %></span>
+      </span>
+    </div>
+
+    <div class="actions">
+      <button class="btn soft" onclick="toggleParticipate('<%= collab._id %>', document.querySelector('.stat'))">참여/취소</button>
+      <button class="btn primary" onclick="toggleCollabLike('<%= collab._id %>', document.querySelectorAll('.stat')[1])">좋아요</button>
+      <% if (userId && (userId === (collab.author && collab.author._id ? collab.author._id.toString() : '') || (typeof isAdmin !== 'undefined' && isAdmin))) { %>
+        <button class="btn" style="border-color:#f87171;color:#f87171;" onclick="deleteCollab('<%= collab._id %>')">삭제</button>
+      <% } %>
+    </div>
+
+    <% /* 상태는 기간 기반 자동 도출이므로 수동 변경 UI 제거 */ %>
+  </div>
+
+  <div class="card side-card">
+    <h3>참여자 (<span id="pCount"><%= collab.participantsCount || 0 %></span>)</h3>
+    <% if (collab.participants && collab.participants.length > 0) { %>
+      <% collab.participants.forEach(p => { %>
+        <a href="/artist/<%= p._id %>" class="participant">
+          <% if (p.profileImage) { %>
+            <img src="<%= p.profileImage %>" class="p-avatar">
+          <% } else { %>
+            <div class="p-avatar"></div>
+          <% } %>
+          <span><%= p.artistName %></span>
+        </a>
+      <% }); %>
+    <% } else { %>
+      <div style="color:#999;">아직 참여자가 없습니다.</div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  async function toggleParticipate(id, el) {
+    try {
+      const res = await fetch(`/collabs/${id}/participate`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      if (res.ok) {
+        const data = await res.json();
+        const countEl = el.querySelector('.p-count') || document.querySelector('.p-count');
+        const listCount = document.getElementById('pCount');
+        if (countEl) countEl.textContent = data.participantsCount;
+        if (listCount) listCount.textContent = data.participantsCount;
+        el.classList.toggle('liked', data.participating);
+        // 새로고침 없이 페이지 반영 위해 단순히 카운트만 업데이트
+      } else if (res.status === 401) {
+        if (confirm('로그인이 필요합니다. 로그인 하시겠습니까?')) window.location.href = '/auth/signin';
+      } else {
+        const err = await res.json();
+        alert(err.error || '오류가 발생했습니다.');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function toggleCollabLike(id, el) {
+    try {
+      const res = await fetch(`/collabs/${id}/like`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      if (res.ok) {
+        const data = await res.json();
+        const countEl = el.querySelector('.l-count') || document.querySelector('.l-count');
+        if (countEl) countEl.textContent = data.likesCount;
+        el.classList.toggle('liked', data.liked);
+      } else if (res.status === 401) {
+        if (confirm('로그인이 필요합니다. 로그인 하시겠습니까?')) window.location.href = '/auth/signin';
+      } else {
+        const err = await res.json();
+        alert(err.error || '오류가 발생했습니다.');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function updateStatus(id) {
+    const status = document.getElementById('statusSelect').value;
+    try {
+      const res = await fetch(`/collabs/${id}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        alert(`상태가 ${data.status}로 변경되었습니다.`);
+        window.location.reload();
+      } else {
+        const err = await res.json();
+        alert(err.error || '오류가 발생했습니다.');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function deleteCollab(id) {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    try {
+      const res = await fetch(`/collabs/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+      if (res.ok) {
+        window.location.href = '/collabs';
+      } else {
+        const err = await res.json();
+        alert(err.error || '삭제에 실패했습니다.');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+</script>
+
+<%- include('include/footer') %>
+

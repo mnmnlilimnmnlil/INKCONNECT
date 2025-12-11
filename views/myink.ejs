@@ -1,0 +1,426 @@
+<%- include('include/header') %>
+
+<style>
+  .profile-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 2rem;
+  }
+  
+  .profile-header {
+    display: flex;
+    gap: 3rem;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #333;
+  }
+  
+  .profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #F91536;
+    background: #333;
+  }
+  
+  .profile-info {
+    flex: 1;
+  }
+  
+  .profile-name {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #fff;
+  }
+  
+  .profile-artist-name {
+    font-size: 1.2rem;
+    color: #999;
+    margin-bottom: 1rem;
+  }
+  
+  .profile-bio {
+    color: #ccc;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+  
+  .profile-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+  }
+  
+  .stat-item {
+    text-align: center;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #F91536;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: #999;
+  }
+  
+  .profile-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .btn-edit {
+    background: #F91536;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s;
+  }
+  
+  .btn-edit:hover {
+    background: #E1142F;
+  }
+  
+  .edit-form {
+    background: #2A2A2A;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-top: 2rem;
+    display: none;
+  }
+  
+  .edit-form.active {
+    display: block;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #ccc;
+    font-size: 0.9rem;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+  }
+  
+  .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #F91536;
+  }
+  
+  .works-section {
+    margin-top: 3rem;
+  }
+  
+  .works-section h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: #fff;
+  }
+  
+  .works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .work-card {
+    background: #2A2A2A;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  
+  .work-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .work-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background: #333;
+  }
+  
+  .work-info {
+    padding: 1rem;
+  }
+  
+  .work-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #fff;
+  }
+  
+  .work-likes {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #999;
+    font-size: 0.85rem;
+  }
+  
+  .work-likes i {
+    transition: color 0.3s;
+  }
+  
+  .work-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-update {
+    background: #F91536;
+    color: #fff;
+  }
+  
+  .btn-delete {
+    background: #F91536;
+    color: #fff;
+  }
+</style>
+
+<div class="profile-container">
+  <% if (error) { %>
+    <div style="background: #F91536; color: #fff; padding: 1rem; border-radius: 6px; margin-bottom: 2rem; text-align: center;">
+      <%= error %>
+    </div>
+  <% } %>
+  
+  <!-- 프로필 헤더 -->
+  <div class="profile-header">
+    <% if (user.profileImage) { %>
+      <img src="<%= user.profileImage %>" alt="<%= user.artistName %>" class="profile-avatar">
+    <% } else { %>
+      <div class="profile-avatar" style="background: #333;"></div>
+    <% } %>
+    
+    <div class="profile-info">
+      <div class="profile-name"><%= user.artistName %></div>
+      <% if (user.bio) { %>
+        <div class="profile-bio"><%= user.bio %></div>
+      <% } %>
+      
+      <div class="profile-stats">
+        <div class="stat-item">
+          <div class="stat-label">작품</div>
+          <div class="stat-number"><%= items ? items.length : 0 %></div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">팔로워</div>
+          <div class="stat-number"><%= user.followers ? user.followers.length : 0 %></div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">팔로잉</div>
+          <div class="stat-number"><%= user.following ? user.following.length : 0 %></div>
+        </div>
+      </div>
+      
+      <div class="profile-actions">
+        <button onclick="toggleEditForm('profile')" class="btn-edit">프로필 수정</button>
+        <button onclick="toggleEditForm('account')" class="btn-edit" style="background: #444; margin-left: 0.5rem;">개인정보 수정</button>
+        <button onclick="toggleDeleteForm()" class="btn-delete" style="background: #F91536; color: #fff; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-left: 1rem;">회원 탈퇴</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 프로필 수정 폼 (공개 정보) -->
+  <form action="/myink?_method=PUT" method="POST" enctype="multipart/form-data" class="edit-form" id="profileForm">
+    <h3 style="color: #fff; margin-bottom: 1.5rem; font-size: 1.3rem;">프로필 정보 수정</h3>
+    <div class="form-group">
+      <label>프로필 이미지</label>
+      <input type="file" name="profileImage" accept="image/*">
+    </div>
+    <div class="form-group">
+      <label>Artist Name <span style="color: #F91536;">*</span></label>
+      <input type="text" name="artistName" value="<%= user.artistName || '' %>" placeholder="Enter your artist name" required>
+    </div>
+    <div class="form-group">
+      <label>작가 소개</label>
+      <textarea name="bio" placeholder="작가 소개를 입력하세요"><%= user.bio || '' %></textarea>
+    </div>
+    <div class="form-group">
+      <label>전문 분야</label>
+      <input type="text" name="specialties" value="<%= user.specialties ? user.specialties.join(', ') : '' %>" placeholder="예: 아메리칸, 재패니즈">
+      <small style="color: #999; font-size: 0.85rem;">쉼표로 구분하여 입력하세요</small>
+    </div>
+    <button type="submit" class="btn-edit">저장하기</button>
+    <button type="button" onclick="toggleEditForm('profile')" class="btn-outline" style="margin-left: 1rem; background: #444; color: #fff; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer;">취소</button>
+  </form>
+
+  <!-- 개인정보 수정 폼 (비공개 정보) -->
+  <form action="/myink/account?_method=PUT" method="POST" class="edit-form" id="accountForm">
+    <h3 style="color: #fff; margin-bottom: 1.5rem; font-size: 1.3rem;">개인정보 수정</h3>
+    <div class="form-group">
+      <label>이메일 (로그인 ID)</label>
+      <input type="email" name="email" value="<%= user.email || '' %>" placeholder="Enter your email">
+      <small style="color: #999; font-size: 0.85rem;">이메일을 변경하면 다음 로그인부터 새 이메일로 로그인하세요</small>
+    </div>
+    <div class="form-group">
+      <label>비밀번호</label>
+      <input type="password" name="password" placeholder="새 비밀번호를 입력하세요 (변경하지 않으려면 비워두세요)">
+      <small style="color: #999; font-size: 0.85rem;">비밀번호를 변경하지 않으려면 비워두세요</small>
+    </div>
+    <button type="submit" class="btn-edit">저장하기</button>
+    <button type="button" onclick="toggleEditForm('account')" class="btn-outline" style="margin-left: 1rem; background: #444; color: #fff; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer;">취소</button>
+  </form>
+
+  <!-- 회원 탈퇴 폼 (비밀번호 확인 필요) -->
+  <form action="/myink?_method=DELETE" method="POST" class="edit-form" id="deleteForm" style="border: 2px solid #F91536;">
+    <h3 style="color: #F91536; margin-bottom: 1rem; font-size: 1.3rem;"> 회원 탈퇴</h3>
+    <div style="background: #2A1A1A; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 4px solid #F91536;">
+      <p style="color: #fff; margin-bottom: 0.5rem; font-weight: 600;">탈퇴 시 다음 정보가 모두 삭제됩니다:</p>
+      <ul style="color: #ccc; margin-left: 1.5rem; line-height: 1.8;">
+        <li>모든 작품 및 이미지</li>
+        <li>좋아요한 작품 목록</li>
+        <li>팔로우/팔로워 관계</li>
+        <li>프로필 정보</li>
+      </ul>
+      <p style="color: #F91536; margin-top: 0.5rem; font-weight: 600;">이 작업은 되돌릴 수 없습니다.</p>
+    </div>
+    <div class="form-group">
+      <label style="color: #F91536; font-weight: 600;">비밀번호 확인 <span style="color: #F91536;">*</span></label>
+      <input type="password" name="password" placeholder="탈퇴를 위해 비밀번호를 입력하세요" required style="border-color: #F91536;">
+      <small style="color: #999; font-size: 0.85rem;">보안을 위해 비밀번호를 입력해야 합니다</small>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+      <button type="submit" class="btn-delete" style="background: #F91536; color: #fff; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; flex: 1;" onclick="return confirm('정말 탈퇴하시겠습니까? 모든 데이터가 영구적으로 삭제됩니다.')">탈퇴하기</button>
+      <button type="button" onclick="toggleDeleteForm()" class="btn-outline" style="background: #444; color: #fff; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; flex: 1;">취소</button>
+    </div>
+  </form>
+  
+  <!-- 내 작품 목록 -->
+  <div class="works-section">
+    <h2>내 작품</h2>
+    <div class="works-grid">
+      <% if (items && items.length > 0) { %>
+        <% items.forEach(item => { %>
+          <div class="work-card">
+            <% if (item.image) { %>
+              <img src="<%= item.image %>" alt="<%= item.title %>" class="work-image">
+            <% } else { %>
+              <div class="work-image"></div>
+            <% } %>
+            <div class="work-info">
+              <div class="work-title"><%= item.title %></div>
+              <div class="work-stats" style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem;">
+                <div class="work-likes">
+                  <i class="fas fa-heart"></i>
+                  <span><%= item.likes ? item.likes.length : 0 %></span>
+                </div>
+                <div class="work-likes">
+                  <i class="fas fa-comment"></i>
+                  <span><%= item.commentsCount || 0 %></span>
+                </div>
+              </div>
+              <div class="work-actions">
+                <a href="/items/<%= item._id %>" class="btn-small btn-update">수정</a>
+                <form action="/items/<%= item._id %>?_method=DELETE" method="POST" style="display: inline;">
+                  <button type="submit" class="btn-small btn-delete" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p style="grid-column: 1 / -1; text-align: center; color: #999;">아직 작품이 없습니다. <a href="/dropink" style="color: #F91536;">작품을 업로드</a>해보세요!</p>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleEditForm(type) {
+  const profileForm = document.getElementById('profileForm');
+  const accountForm = document.getElementById('accountForm');
+  const deleteForm = document.getElementById('deleteForm');
+  
+  if (type === 'profile') {
+    // 프로필 수정 폼 토글
+    profileForm.classList.toggle('active');
+    // 다른 폼들은 닫기
+    accountForm.classList.remove('active');
+    deleteForm.classList.remove('active');
+  } else if (type === 'account') {
+    // 개인정보 수정 폼 토글
+    accountForm.classList.toggle('active');
+    // 다른 폼들은 닫기
+    profileForm.classList.remove('active');
+    deleteForm.classList.remove('active');
+  }
+}
+
+function toggleDeleteForm() {
+  const profileForm = document.getElementById('profileForm');
+  const accountForm = document.getElementById('accountForm');
+  const deleteForm = document.getElementById('deleteForm');
+  
+  // 회원 탈퇴 폼 토글
+  deleteForm.classList.toggle('active');
+  // 다른 폼들은 닫기
+  profileForm.classList.remove('active');
+  accountForm.classList.remove('active');
+  
+  // 폼이 열릴 때 비밀번호 필드 포커스
+  if (deleteForm.classList.contains('active')) {
+    setTimeout(() => {
+      deleteForm.querySelector('input[type="password"]').focus();
+    }, 100);
+  }
+}
+</script>
+
+<% if (typeof showDeleteForm !== 'undefined' && showDeleteForm) { %>
+<script>
+  // 에러 발생 시 탈퇴 폼 자동으로 열기
+  document.addEventListener('DOMContentLoaded', function() {
+    toggleDeleteForm();
+  });
+</script>
+<% } %>
+
+<%- include('include/footer') %>
+

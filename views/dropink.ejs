@@ -1,0 +1,414 @@
+<%- include('include/header') %>
+
+<style>
+  .dropink-container {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 2rem;
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .page-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1.1rem;
+    color: #999;
+    margin-bottom: 1.5rem;
+  }
+  
+  .divider {
+    display: none;
+  }
+  
+  .upload-form {
+    background: #2A2A2A;
+    border-radius: 12px;
+    padding: 2rem;
+  }
+  
+  .form-group {
+    margin-bottom: 2rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .upload-area {
+    border: 2px dashed #F91536;
+    border-radius: 8px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #1A1A1A;
+  }
+  
+  .upload-area:hover {
+    border-color: #E1142F;
+    background: #222;
+  }
+  
+  .upload-area.dragover {
+    border-color: #F91536;
+    background: #F9153610;
+  }
+  
+  .upload-icon {
+    font-size: 3rem;
+    color: #F91536;
+    margin-bottom: 1rem;
+  }
+  
+  .upload-text {
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .upload-hint {
+    color: #999;
+    font-size: 0.9rem;
+  }
+  
+  .file-input {
+    display: none;
+  }
+  
+  .preview-image {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 8px;
+    margin-top: 1rem;
+    display: none;
+  }
+  
+  .preview-image.show {
+    display: block;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: #F91536;
+  }
+  
+  .form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 120px;
+  }
+  
+  .form-textarea:focus {
+    outline: none;
+    border-color: #F91536;
+  }
+  
+  .category-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  
+  .category-tag {
+    padding: 0.5rem 1rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .category-tag:hover {
+    border-color: #F91536;
+    color: #F91536;
+  }
+  
+  .category-tag.selected {
+    background: #F91536;
+    border-color: #F91536;
+    color: #fff;
+  }
+  
+  .category-tag input {
+    display: none;
+  }
+  
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .btn-primary {
+    flex: 1;
+    padding: 1rem 2rem;
+    background: #F91536;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .btn-primary:hover {
+    background: #E1142F;
+  }
+  
+  .btn-secondary {
+    flex: 1;
+    padding: 1rem 2rem;
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .btn-secondary:hover {
+    background: #444;
+  }
+  
+  .error-message {
+    background: #F9153620;
+    border: 1px solid #F91536;
+    color: #ff4444;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+</style>
+
+<div class="dropink-container">
+  <div class="page-header">
+    <h1 class="page-title">Drop Ink</h1>
+    <p class="page-subtitle">당신의 작품을 세상과 공유하세요</p>
+    <div class="divider"></div>
+  </div>
+  
+  <form action="/items" method="POST" enctype="multipart/form-data" class="upload-form" id="uploadForm">
+    <% if (error) { %>
+      <div class="error-message"><%= error %></div>
+    <% } %>
+    
+    <!-- 이미지 업로드 -->
+    <div class="form-group">
+      <label>작품 이미지</label>
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('imageInput').click()">
+        <div class="upload-icon">+</div>
+        <div class="upload-text">클릭하여 업로드하거나 드래그 앤 드롭</div>
+        <div class="upload-hint">PNG, JPG 최대 10MB</div>
+        <img id="previewImg" class="preview-image" alt="미리보기">
+      </div>
+      <input type="file" id="imageInput" name="image" accept="image/*" class="file-input" required>
+    </div>
+    
+    <!-- 제목 -->
+    <div class="form-group">
+      <label for="title">제목</label>
+      <input type="text" id="title" name="title" class="form-input" placeholder="작품 제목을 입력하세요" required>
+    </div>
+    
+    <!-- 설명 -->
+    <div class="form-group">
+      <label for="description">설명</label>
+      <textarea id="description" name="description" class="form-textarea" placeholder="작품에 대한 이야기를 적어주세요..."></textarea>
+    </div>
+    
+    <!-- 태그 (선택사항) -->
+    <div class="form-group">
+      <label for="tags">태그</label>
+      <input type="text" id="tags" name="tags" class="form-input" placeholder="미니멀, 지오메트릭, 블랙워크...">
+      <small style="color: #999; font-size: 0.85rem; margin-top: 0.5rem; display: block;">쉼표로 구분하여 입력하세요</small>
+    </div>
+    
+    <!-- 카테고리 (선택사항) -->
+    <div class="form-group">
+      <label>카테고리</label>
+      <div class="category-group">
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="블랙워크">
+          블랙워크
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="재패니즈">
+          재패니즈
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="리얼리스틱">
+          리얼리스틱
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="트래디셔널">
+          트래디셔널
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="트레쉬폴카">
+          트레쉬폴카
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="올드스쿨">
+          올드스쿨
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="뉴스쿨">
+          뉴스쿨
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="블랙앤그레이">
+          블랙앤그레이
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="치카노">
+          치카노
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="라인워크">
+          라인워크
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="컬러타투">
+          컬러타투
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="수채화타투">
+          수채화타투
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="다크사이드">
+          다크사이드
+        </label>
+        <label class="category-tag">
+          <input type="checkbox" name="category" value="트라이벌">
+          트라이벌
+        </label>
+      </div>
+    </div>
+    
+    <!-- 버튼 -->
+    <div class="form-actions">
+      <button type="submit" class="btn-primary">작품 올리기</button>
+      <button type="button" class="btn-secondary" onclick="saveDraft()">임시 저장</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // 이미지 미리보기
+  const imageInput = document.getElementById('imageInput');
+  const previewImg = document.getElementById('previewImg');
+  const uploadArea = document.getElementById('uploadArea');
+  
+  imageInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        previewImg.classList.add('show');
+        uploadArea.querySelector('.upload-icon').style.display = 'none';
+        uploadArea.querySelector('.upload-text').style.display = 'none';
+        uploadArea.querySelector('.upload-hint').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  
+  // 드래그 앤 드롭
+  uploadArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+  });
+  
+  uploadArea.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+  });
+  
+  uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      imageInput.files = files;
+      const event = new Event('change', { bubbles: true });
+      imageInput.dispatchEvent(event);
+    }
+  });
+  
+  // 카테고리 태그 선택
+  document.querySelectorAll('.category-tag input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      if (this.checked) {
+        this.parentElement.classList.add('selected');
+      } else {
+        this.parentElement.classList.remove('selected');
+      }
+    });
+  });
+  
+  // Save Draft 기능 (로컬 스토리지에 저장)
+  function saveDraft() {
+    const formData = {
+      title: document.getElementById('title').value,
+      description: document.getElementById('description').value,
+      tags: document.getElementById('tags').value
+    };
+    localStorage.setItem('dropink_draft', JSON.stringify(formData));
+    alert('Draft saved!');
+  }
+  
+  // 페이지 로드 시 드래프트 복원
+  window.addEventListener('load', function() {
+    const draft = localStorage.getItem('dropink_draft');
+    if (draft) {
+      const formData = JSON.parse(draft);
+      document.getElementById('title').value = formData.title || '';
+      document.getElementById('description').value = formData.description || '';
+      document.getElementById('tags').value = formData.tags || '';
+    }
+  });
+</script>
+
+<%- include('include/footer') %>
+

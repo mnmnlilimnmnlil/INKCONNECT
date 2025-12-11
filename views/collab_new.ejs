@@ -1,0 +1,105 @@
+<%- include('include/header') %>
+
+<style>
+  .form-container {
+    max-width: 720px;
+    margin: 2rem auto 3rem;
+    padding: 0 1.5rem;
+  }
+  .form-card {
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 2rem;
+  }
+  .form-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+  .form-group { margin-bottom: 1.25rem; }
+  .form-group label {
+    display: block;
+    color: #ccc;
+    margin-bottom: 0.45rem;
+    font-size: 0.95rem;
+  }
+  .input, textarea, select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-family: inherit;
+  }
+  textarea { min-height: 140px; resize: vertical; }
+  .hint { color: #777; font-size: 0.85rem; margin-top: 0.35rem; }
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+  }
+  .btn-primary {
+    background: #F91536;
+    border: none;
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    cursor: true;
+    font-weight: 600;
+  }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid #444;
+    color: #ccc;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+  }
+</style>
+
+<div class="form-container">
+  <div class="form-card">
+    <div class="form-title">새 콜라보 작성</div>
+    <form action="/collabs" method="POST">
+      <div class="form-group">
+        <label>제목</label>
+        <input class="input" type="text" name="title" required placeholder="예: 3월 서울 게스트 스팟 같이 하실 분">
+      </div>
+      <div class="form-group">
+        <label>설명</label>
+        <textarea name="description" placeholder="하고 싶은 작업, 조건, 기간 등을 적어주세요."></textarea>
+      </div>
+      <div class="form-group">
+        <label>스타일(쉼표로 구분)</label>
+        <input class="input" type="text" name="styles" placeholder="블랙워크, 라인워크">
+        <div class="hint">예: 블랙워크, 라인워크</div>
+      </div>
+      <div class="form-group">
+        <label>위치</label>
+        <input class="input" type="text" name="location" placeholder="도시 / 샵 이름">
+      </div>
+      <div class="form-group">
+        <label>시작일 (선택)</label>
+        <input class="input" type="date" name="startDate">
+      </div>
+      <div class="form-group">
+        <label>종료일 (선택)</label>
+        <input class="input" type="date" name="endDate">
+      </div>
+      <div class="form-group">
+        <label>상태</label>
+        <input class="input" type="text" value="모집중 (날짜에 따라 자동 표시)" disabled>
+      </div>
+      <div class="actions">
+        <a href="/collabs" class="btn-ghost">취소</a>
+        <button type="submit" class="btn-primary">작성</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('include/footer') %>
+

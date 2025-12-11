@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title><%= title %> - InkConnect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      padding: 2rem;
+    }
+    h1 { 
+      font-size: 2rem; 
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    .subtitle {
+      color: #888;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+    .card {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 2rem;
+      border: 1px solid #2a2a2a;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      background: #0f0f0f;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 1rem;
+    }
+    input:focus {
+      outline: none;
+      border-color: #F91536;
+    }
+    .error {
+      background: #F9153620;
+      border: 1px solid #F91536;
+      color: #ff4444;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: #F91536;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: #E1142F;
+    }
+    .link {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #888;
+    }
+    .link a {
+      color: #F91536;
+      text-decoration: none;
+    }
+    .link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>다시 오신 것을 환영합니다</h1>
+    <p class="subtitle">INKCONNECT 계정에 로그인하세요</p>
+    
+    <div class="card">
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+      
+      <form action="/auth/signin" method="POST">
+        <div class="form-group">
+          <label for="email">이메일</label>
+          <input type="email" id="email" name="email" placeholder="your@email.com" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="password">비밀번호</label>
+          <input type="password" id="password" name="password" placeholder="........" required />
+        </div>
+        
+        <button type="submit" class="btn">로그인</button>
+      </form>
+      
+      <div class="link">
+        계정이 없으신가요? <a href="/auth/signup">회원가입</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

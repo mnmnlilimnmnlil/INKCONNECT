@@ -1,0 +1,318 @@
+<%- include('../include/header') %>
+
+<style>
+  .admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .admin-header {
+    margin-bottom: 2rem;
+  }
+  
+  .admin-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .admin-nav {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #333;
+  }
+  
+  .admin-nav a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: background 0.3s;
+  }
+  
+  .admin-nav a:hover,
+  .admin-nav a.active {
+    background: #F91536;
+  }
+  
+  .admin-section {
+    background: #2A2A2A;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  
+  .filter-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.75rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.9rem;
+  }
+  
+  .filter-select {
+    padding: 0.75rem;
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.9rem;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  thead {
+    background: #1A1A1A;
+  }
+  
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #333;
+  }
+  
+  th {
+    font-weight: 600;
+    color: #F91536;
+  }
+  
+  tbody tr:hover {
+    background: #333;
+  }
+  
+  .btn-verify,
+  .btn-delete {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+    margin-right: 0.5rem;
+  }
+  
+  .btn-verify {
+    background: #F91536;
+    color: #fff;
+  }
+  
+  .btn-verify:hover {
+    background: #E1142F;
+  }
+  
+  .btn-delete {
+    background: #dc3545;
+    color: #fff;
+  }
+  
+  .btn-delete:hover {
+    background: #c82333;
+  }
+  
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .badge-verified {
+    background: #28a745;
+    color: #fff;
+  }
+  
+  .badge-pending {
+    background: #ffc107;
+    color: #000;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+  
+  .pagination a,
+  .pagination span {
+    padding: 0.5rem 1rem;
+    background: #2A2A2A;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    border: 1px solid #333;
+  }
+  
+  .pagination a:hover {
+    background: #F91536;
+    border-color: #F91536;
+  }
+  
+  .pagination .current {
+    background: #F91536;
+    border-color: #F91536;
+  }
+</style>
+
+<main>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>작가 관리</h1>
+    </div>
+    
+    <nav class="admin-nav">
+      <a href="/admin/dashboard">대시보드</a>
+      <a href="/admin/artists" class="active">작가 관리</a>
+      <a href="/admin/items">작품 관리</a>
+      <a href="/admin/comments">댓글 관리</a>
+    </nav>
+    
+    <section class="admin-section">
+      <form method="GET" action="/admin/artists" class="filter-bar">
+        <input 
+          type="text" 
+          name="search" 
+          placeholder="작가명 또는 이메일 검색..." 
+          value="<%= searchQuery %>"
+          class="search-input"
+        >
+        <select name="verified" class="filter-select">
+          <option value="all" <%= verifiedFilter === 'all' ? 'selected' : '' %>>전체</option>
+          <option value="true" <%= verifiedFilter === 'true' ? 'selected' : '' %>>인증됨</option>
+          <option value="false" <%= verifiedFilter === 'false' ? 'selected' : '' %>>미인증</option>
+        </select>
+        <button type="submit" style="padding: 0.75rem 1.5rem; background: #F91536; color: #fff; border: none; border-radius: 6px; cursor: pointer;">검색</button>
+      </form>
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>작가명</th>
+              <th>이메일</th>
+              <th>작품 수</th>
+              <th>팔로워</th>
+              <th>인증 상태</th>
+              <th>가입일</th>
+              <th>작업</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (artists && artists.length > 0) { %>
+              <% artists.forEach(artist => { %>
+                <tr>
+                  <td><%= artist.artistName %></td>
+                  <td><%= artist.email %></td>
+                  <td><%= artist.worksCount || 0 %></td>
+                  <td><%= artist.followersCount || 0 %></td>
+                  <td>
+                    <% if (artist.verified) { %>
+                      <span class="badge badge-verified">인증됨</span>
+                    <% } else { %>
+                      <span class="badge badge-pending">미인증</span>
+                    <% } %>
+                  </td>
+                  <td><%= new Date(artist.createdAt).toLocaleDateString('ko-KR') %></td>
+                  <td>
+                    <button onclick="toggleVerification('<%= artist._id %>', <%= artist.verified %>)" class="btn-verify">
+                      <%= artist.verified ? '인증 해제' : '인증하기' %>
+                    </button>
+                    <button onclick="deleteArtist('<%= artist._id %>', '<%= artist.artistName %>')" class="btn-delete">삭제</button>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" style="text-align: center; padding: 2rem; color: #999;">작가가 없습니다.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+      
+      <% if (totalPages > 1) { %>
+        <div class="pagination">
+          <% if (currentPage > 1) { %>
+            <a href="/admin/artists?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %><%= verifiedFilter !== 'all' ? '&verified=' + verifiedFilter : '' %>">이전</a>
+          <% } %>
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <% if (i === currentPage) { %>
+              <span class="current"><%= i %></span>
+            <% } else { %>
+              <a href="/admin/artists?page=<%= i %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %><%= verifiedFilter !== 'all' ? '&verified=' + verifiedFilter : '' %>"><%= i %></a>
+            <% } %>
+          <% } %>
+          <% if (currentPage < totalPages) { %>
+            <a href="/admin/artists?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %><%= verifiedFilter !== 'all' ? '&verified=' + verifiedFilter : '' %>">다음</a>
+          <% } %>
+        </div>
+      <% } %>
+    </section>
+  </div>
+</main>
+
+<script>
+async function toggleVerification(userId, currentStatus) {
+  const action = currentStatus ? '인증 해제' : '인증';
+  if (!confirm(`이 작가를 ${action}하시겠습니까?`)) return;
+  
+  try {
+    const res = await fetch(`/admin/artists/${userId}/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      location.reload();
+    } else {
+      alert('오류가 발생했습니다.');
+    }
+  } catch (err) {
+    alert('오류가 발생했습니다.');
+  }
+}
+
+async function deleteArtist(userId, artistName) {
+  if (!confirm(`정말로 "${artistName}" 작가의 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 관련된 모든 작품과 댓글도 함께 삭제됩니다.`)) return;
+  
+  try {
+    const res = await fetch(`/admin/artists/${userId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      location.reload();
+    } else {
+      alert(data.error || '오류가 발생했습니다.');
+    }
+  } catch (err) {
+    alert('오류가 발생했습니다.');
+  }
+}
+</script>
+
+<%- include('../include/footer') %>
+

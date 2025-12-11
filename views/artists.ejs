@@ -1,0 +1,216 @@
+<%- include('include/header') %>
+
+<style>
+  .artists-container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .page-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1.1rem;
+    color: #999;
+    margin-bottom: 2rem;
+  }
+  
+  .artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  
+  .artist-card {
+    background: #2A2A2A;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.3s;
+    cursor: pointer;
+  }
+  
+  .artist-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .artist-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 1.5rem;
+    border: 3px solid #F91536;
+    background: #333;
+  }
+  
+  .artist-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #fff;
+  }
+  
+  .artist-specialty {
+    color: #999;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .artist-stats {
+    color: #999;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  
+  .btn-follow {
+    background: #F91536;
+    color: #fff;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+    width: 100%;
+  }
+  
+  .btn-follow:hover {
+    background: #E1142F;
+  }
+  
+  .btn-follow.following {
+    background: transparent;
+    border: 2px solid #F91536;
+    color: #F91536;
+  }
+  
+  .btn-follow.following:hover {
+    background: #F91536;
+    color: #fff;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #999;
+  }
+  
+  .empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+  }
+</style>
+
+<div class="artists-container">
+  <!-- 페이지 헤더 -->
+  <div class="page-header">
+    <h1 class="page-title">Artists</h1>
+    <p class="page-subtitle">전 세계의 재능 있는 타투 작가들과 소통해보세요</p>
+  </div>
+  
+  <!-- 작가 그리드 -->
+  <div class="artists-grid">
+    <% if (artists && artists.length > 0) { %>
+      <% artists.forEach(artist => { %>
+        <div class="artist-card" onclick="window.location.href='/artist/<%= artist._id %>'">
+          <% if (artist.profileImage) { %>
+            <img src="<%= artist.profileImage %>" alt="<%= artist.artistName %>" class="artist-avatar">
+          <% } else { %>
+            <div class="artist-avatar" style="background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 2.5rem;">
+              <i class="fas fa-user"></i>
+            </div>
+          <% } %>
+          <div class="artist-name"><%= artist.artistName %></div>
+          <div class="artist-specialty">
+            <%= artist.specialties && artist.specialties.length > 0 ? artist.specialties.join(' & ') : '작가' %>
+          </div>
+          <div class="artist-stats">
+            팔로워 <span id="followers-count-<%= artist._id %>"><%= artist.followers ? (artist.followers.length > 1000 ? (artist.followers.length / 1000).toFixed(1) + 'K' : artist.followers.length) : 0 %></span> • 작품 <%= artist.worksCount || 0 %>
+          </div>
+          <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn && typeof userId !== 'undefined') { %>
+            <button class="btn-follow <%= artist.isFollowing ? 'following' : '' %>" 
+                    onclick="event.stopPropagation(); toggleFollow('<%= artist._id %>', this);">
+              <%= artist.isFollowing ? '팔로잉' : '팔로우' %>
+            </button>
+          <% } else { %>
+            <a href="/artist/<%= artist._id %>" class="btn-follow" onclick="event.stopPropagation();">팔로우</a>
+          <% } %>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <h3>아직 작가가 없습니다</h3>
+        <p>첫 번째로 커뮤니티에 참여해보세요!</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  // 팔로우 토글
+  async function toggleFollow(artistId, button) {
+    try {
+      const response = await fetch(`/artist/${artistId}/follow`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const followersCountEl = document.getElementById(`followers-count-${artistId}`);
+        
+        // 버튼 상태 업데이트
+        if (data.following) {
+          button.classList.add('following');
+          button.textContent = '팔로잉';
+          button.style.background = 'transparent';
+          button.style.color = '#F91536';
+        } else {
+          button.classList.remove('following');
+          button.textContent = '팔로우';
+          button.style.background = '#F91536';
+          button.style.color = '#fff';
+        }
+
+        // 팔로워 수 업데이트
+        if (followersCountEl && typeof data.followersCount === 'number') {
+          const count = data.followersCount;
+          followersCountEl.textContent = count > 1000 ? (count / 1000).toFixed(1) + 'K' : count;
+        }
+      } else {
+        const error = await response.json();
+        if (error.error === '로그인이 필요합니다.' || response.status === 401) {
+          if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+            window.location.href = '/auth/signin';
+          }
+        } else {
+          alert(error.error || '오류가 발생했습니다.');
+        }
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      alert('오류가 발생했습니다.');
+    }
+  }
+</script>
+
+<%- include('include/footer') %>
+

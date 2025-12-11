@@ -1,0 +1,810 @@
+<style>
+  /* 헤더와 히어로 섹션을 감싸는 컨테이너 */
+  .hero-wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* 헤더를 hero-wrapper 내부로 이동 */
+  .hero-wrapper .nav-header {
+    flex-shrink: 0;
+    z-index: 10;
+    position: relative;
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(10px);
+  }
+  
+  .hero-wrapper .hero-section {
+    flex: 1;
+    text-align: center;
+    padding: 0;
+    background: #1A1A1A;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 0;
+    height: calc(100vh - 80px); /* 헤더 높이(패딩 포함 약 80px) 제외 */
+  }
+  
+  /* 비디오 배경 */
+  .hero-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  /* 비디오 위에 오버레이 */
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26, 26, 26, 0.4);
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  /* 히어로 섹션 내용이 비디오 위에 표시되도록 */
+  .hero-wrapper .hero-section > *:not(.hero-video):not(.hero-overlay):not(.hero-blur-1):not(.hero-blur-2):not(.hero-blur-3) {
+    position: relative;
+    z-index: 2;
+  }
+  
+  /* hero-blur 요소들은 레이아웃에 영향을 주지 않도록 */
+  .hero-blur-1,
+  .hero-blur-2,
+  .hero-blur-3 {
+    position: absolute;
+    pointer-events: none;
+  }
+  
+  /* 레드 포인트 블러 효과 - 연기처럼 */
+  .hero-section::before,
+  .hero-section::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    transition: transform 0.3s ease-out;
+  }
+  
+  .hero-section::before {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #F91536 0%, rgba(249, 21, 54, 0.3) 50%, transparent 100%);
+    top: -100px;
+    left: 10%;
+    animation: smokeFloat1 15s ease-in-out infinite;
+  }
+  
+  .hero-section::after {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, #F91536 0%, rgba(249, 21, 54, 0.2) 50%, transparent 100%);
+    bottom: -50px;
+    right: 15%;
+    animation: smokeFloat2 18s ease-in-out infinite;
+  }
+  
+  /* 추가 블러 포인트들 - 연기 효과 */
+  .hero-blur-1,
+  .hero-blur-2,
+  .hero-blur-3 {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.3;
+    --mouse-x: 0px;
+    --mouse-y: 0px;
+    transform: translate(var(--mouse-x), var(--mouse-y));
+    transition: transform 0.1s ease-out;
+  }
+  
+  .hero-blur-1 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, #F91536 0%, rgba(249, 21, 54, 0.2) 50%, transparent 100%);
+    top: 30%;
+    right: 20%;
+    animation: smokeFloat3 20s ease-in-out infinite;
+  }
+  
+  .hero-blur-2 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(249, 21, 54, 0.6) 0%, rgba(249, 21, 54, 0.1) 50%, transparent 100%);
+    bottom: 20%;
+    left: 20%;
+    animation: smokeFloat4 16s ease-in-out infinite;
+  }
+  
+  .hero-blur-3 {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(249, 21, 54, 0.5) 0%, rgba(249, 21, 54, 0.1) 50%, transparent 100%);
+    top: 60%;
+    left: 50%;
+    animation: smokeFloat5 22s ease-in-out infinite;
+  }
+  
+  /* 연기처럼 자연스럽게 움직이는 애니메이션 */
+  @keyframes smokeFloat1 {
+    0%, 100% {
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    20% {
+      transform: translate(60px, -40px) scale(1.15) rotate(5deg);
+    }
+    40% {
+      transform: translate(-50px, 50px) scale(0.9) rotate(-3deg);
+    }
+    60% {
+      transform: translate(40px, 30px) scale(1.1) rotate(2deg);
+    }
+    80% {
+      transform: translate(-30px, -20px) scale(0.95) rotate(-4deg);
+    }
+  }
+  
+  @keyframes smokeFloat2 {
+    0%, 100% {
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    25% {
+      transform: translate(-70px, 50px) scale(1.2) rotate(-6deg);
+    }
+    50% {
+      transform: translate(50px, -60px) scale(0.85) rotate(4deg);
+    }
+    75% {
+      transform: translate(-40px, 30px) scale(1.05) rotate(-2deg);
+    }
+  }
+  
+  @keyframes smokeFloat3 {
+    0%, 100% {
+      transform: translate(var(--mouse-x), var(--mouse-y)) scale(1) rotate(0deg);
+    }
+    30% {
+      transform: translate(calc(var(--mouse-x) + 80px), calc(var(--mouse-y) - 50px)) scale(1.25) rotate(7deg);
+    }
+    60% {
+      transform: translate(calc(var(--mouse-x) - 60px), calc(var(--mouse-y) + 70px)) scale(0.8) rotate(-5deg);
+    }
+  }
+  
+  @keyframes smokeFloat4 {
+    0%, 100% {
+      transform: translate(var(--mouse-x), var(--mouse-y)) scale(1) rotate(0deg);
+    }
+    33% {
+      transform: translate(calc(var(--mouse-x) - 90px), calc(var(--mouse-y) - 30px)) scale(1.3) rotate(-8deg);
+    }
+    66% {
+      transform: translate(calc(var(--mouse-x) + 70px), calc(var(--mouse-y) + 50px)) scale(0.75) rotate(6deg);
+    }
+  }
+  
+  @keyframes smokeFloat5 {
+    0%, 100% {
+      transform: translate(calc(-50% + var(--mouse-x)), var(--mouse-y)) scale(1) rotate(0deg);
+    }
+    35% {
+      transform: translate(calc(-50% + var(--mouse-x) + 100px), calc(var(--mouse-y) - 80px)) scale(1.2) rotate(9deg);
+    }
+    70% {
+      transform: translate(calc(-50% + var(--mouse-x) - 80px), calc(var(--mouse-y) + 60px)) scale(0.85) rotate(-7deg);
+    }
+  }
+  
+  /* 히어로 섹션 텍스트 콘텐츠 wrapper */
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+  }
+  
+  /* 히어로 섹션 텍스트 콘텐츠 wrapper */
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+  }
+  
+  .hero-section h1 {
+    font-size: 5rem;
+    font-weight: 700;
+    margin: 0;
+    margin-bottom: 1rem;
+    color: #fff;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-section .slogan {
+    font-size: 1.5rem;
+    color: #ccc;
+    margin: 0;
+    margin-bottom: 3rem;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    margin: 0;
+  }
+  .btn-primary {
+    background: #F91536;
+    color: #fff;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s;
+  }
+  .btn-primary:hover {
+    background: #E1142F;
+  }
+  .btn-outline {
+    background: transparent;
+    color: #F91536;
+    padding: 1rem 2.5rem;
+    border: 2px solid #F91536;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+  }
+  .btn-outline:hover {
+    background: #F91536;
+    color: #fff;
+  }
+  
+  .section {
+    padding: 4rem 0;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #fff;
+    text-align: center;
+  }
+  .section-desc {
+    font-size: 1rem;
+    color: #999;
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+  
+  .works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  .work-card {
+    background: #2A2A2A;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  .work-card:hover {
+    transform: translateY(-5px);
+  }
+  .work-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    background: #333;
+  }
+  .work-info {
+    padding: 1.5rem;
+  }
+  .work-author {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #fff;
+  }
+  .work-likes {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #999;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+  }
+  .work-likes.liked {
+    color: #F91536;
+  }
+  .work-likes.liked i {
+    color: #F91536;
+  }
+  .work-likes[onclick]:not(.liked):hover i {
+    color: #F91536;
+  }
+  .work-likes[onclick] {
+    cursor: pointer;
+  }
+  .work-likes i {
+    transition: color 0.3s;
+  }
+  
+  .artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  .artist-card {
+    background: #2A2A2A;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+  }
+  .artist-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 1.5rem;
+    border: 3px solid #F91536;
+    background: #333;
+  }
+  .artist-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #fff;
+  }
+  .artist-specialty {
+    color: #999;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  .artist-followers {
+    color: #999;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  .btn-follow {
+    background: #F91536;
+    color: #fff;
+    padding: 0.75rem 2rem;
+    border: 2px solid #F91536;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+  }
+  .btn-follow:hover {
+    background: #E1142F;
+    border-color: #E1142F;
+  }
+  .btn-follow.following {
+    background: transparent;
+    border: 2px solid #F91536;
+    color: #F91536;
+  }
+  .btn-follow.following:hover {
+    background: #F91536;
+    color: #fff;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #999;
+  }
+  
+  .empty-state h3 {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .empty-state p {
+    color: #999;
+    font-size: 1rem;
+  }
+  
+  footer {
+    padding: 3rem 2rem;
+    border-top: 1px solid #333;
+    margin-top: 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #999;
+    font-size: 0.9rem;
+  }
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+  }
+  .footer-links a {
+    color: #999;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover {
+    color: #fff;
+  }
+  
+  /* 모바일 반응형 */
+  @media (max-width: 768px) {
+    .hero-section {
+      padding: 6rem 1rem;
+    }
+    
+    .hero-section h1 {
+      font-size: 2.5rem;
+    }
+    
+    .hero-section .slogan {
+      font-size: 1.1rem;
+    }
+    
+    .hero-section::before {
+      width: 250px;
+      height: 250px;
+      filter: blur(60px);
+    }
+    
+    .hero-section::after {
+      width: 200px;
+      height: 200px;
+      filter: blur(60px);
+    }
+    
+    .hero-blur-1,
+    .hero-blur-2,
+    .hero-blur-3 {
+      filter: blur(70px);
+    }
+    
+    .hero-blur-1 {
+      width: 180px;
+      height: 180px;
+    }
+    
+    .hero-blur-2 {
+      width: 150px;
+      height: 150px;
+    }
+    
+    .hero-blur-3 {
+      width: 120px;
+      height: 120px;
+    }
+    
+    .hero-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .btn-primary,
+    .btn-outline {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+</style>
+
+<!-- 헤더와 히어로 섹션을 감싸는 wrapper -->
+<div class="hero-wrapper">
+  <%- include('include/header') %>
+  
+  <!-- 히어로 섹션 -->
+  <section class="hero-section">
+  <video class="hero-video" autoplay muted loop playsinline>
+    <source src="/video/main_video.mp4" type="video/mp4">
+  </video>
+  <div class="hero-overlay"></div>
+  <div class="hero-blur-1"></div>
+  <div class="hero-blur-2"></div>
+  <div class="hero-blur-3"></div>
+  <div class="hero-content">
+    <h1>INKCONNECT</h1>
+    <p class="slogan">타투이스트들을 연결하는 SNS 플랫폼</p>
+    <div class="hero-buttons">
+      <a href="/feed" class="btn-primary">Feed</a>
+      <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+        <a href="/dropink" class="btn-outline">Drop Ink</a>
+      <% } else { %>
+        <a href="/auth/signin" class="btn-outline">Drop Ink</a>
+      <% } %>
+    </div>
+  </div>
+  </section>
+</div>
+
+<!-- 인기 작품 섹션 -->
+<section class="section">
+  <h2 class="section-title">인기 작품</h2>
+  <p class="section-desc">커뮤니티에서 가장 사랑받는 작품들을 발견해보세요</p>
+  
+  <div class="works-grid">
+    <% if (popularItems && popularItems.length > 0) { %>
+      <% popularItems.forEach(item => { %>
+        <div class="work-card" onclick="window.location.href='/items/<%= item._id %>'">
+          <% if (item.image) { %>
+            <img src="<%= item.image %>" alt="<%= item.title %>" class="work-image">
+          <% } else { %>
+            <div class="work-image"></div>
+          <% } %>
+          <div class="work-info">
+            <div class="work-author"><%= item.author ? item.author.artistName : '알 수 없음' %></div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+              <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+                <div class="work-likes <%= (item.isLiked === true) ? 'liked' : '' %>" 
+                     onclick="event.stopPropagation(); toggleLike('<%= item._id %>', this);" 
+                     style="cursor: pointer;">
+                  <i class="fas fa-heart"></i>
+                  <span class="like-count"><%= item.likes ? item.likes.length : 0 %></span>
+                </div>
+              <% } else { %>
+                <div class="work-likes" 
+                     onclick="event.stopPropagation(); showLoginRequired();" 
+                     style="cursor: pointer;">
+                  <i class="fas fa-heart"></i>
+                  <span class="like-count"><%= item.likes ? item.likes.length : 0 %></span>
+                </div>
+              <% } %>
+              <div class="work-likes" onclick="event.stopPropagation(); window.location.href='/items/<%= item._id %>';" style="cursor: pointer;">
+                <i class="fas fa-comment"></i>
+                <span class="comment-count"><%= item.commentsCount || 0 %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <h3>아직 작품이 없습니다</h3>
+        <p>첫 번째로 작품을 공유해보세요!</p>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<!-- 추천 작가 섹션 -->
+<section class="section">
+  <h2 class="section-title">추천 작가</h2>
+  <p class="section-desc">커뮤니티의 재능 있는 작가들과 소통해보세요</p>
+  
+  <div class="artists-grid">
+    <% if (popularArtists && popularArtists.length > 0) { %>
+      <% popularArtists.forEach(artist => { %>
+        <div class="artist-card">
+          <% if (artist.profileImage) { %>
+            <img src="<%= artist.profileImage %>" alt="<%= artist.artistName %>" class="artist-avatar">
+          <% } else { %>
+            <div class="artist-avatar" style="background: #333;"></div>
+          <% } %>
+          <div class="artist-name"><%= artist.artistName %></div>
+          <div class="artist-specialty">
+            <%= artist.specialties && artist.specialties.length > 0 ? artist.specialties.join(' & ') : '작가' %>
+          </div>
+          <div class="artist-followers">
+            팔로워 <%= artist.followers ? (artist.followers.length > 1000 ? (artist.followers.length / 1000).toFixed(1) + 'K' : artist.followers.length) : 0 %> • 작품 <%= artist.worksCount || 0 %>
+          </div>
+          <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn && typeof userId !== 'undefined') { %>
+            <button class="btn-follow <%= artist.isFollowing ? 'following' : '' %>" 
+                    onclick="event.stopPropagation(); toggleFollow('<%= artist._id %>', this);">
+              <%= artist.isFollowing ? '팔로잉' : '팔로우' %>
+            </button>
+          <% } else { %>
+            <a href="/artist/<%= artist._id %>" class="btn-follow" onclick="event.stopPropagation();">팔로우</a>
+          <% } %>
+        </div>
+      <% }); %>
+  <% } else { %>
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <h3>아직 작가가 없습니다</h3>
+        <p>첫 번째로 커뮤니티에 참여해보세요!</p>
+      </div>
+  <% } %>
+  </div>
+</section>
+
+<script>
+  // 마우스 반응 - 블러 포인트들이 마우스를 따라다니는 효과
+  (function() {
+    const heroSection = document.querySelector('.hero-section');
+    const blurElements = [
+      document.querySelector('.hero-blur-1'),
+      document.querySelector('.hero-blur-2'),
+      document.querySelector('.hero-blur-3')
+    ];
+    
+    let mouseX = 0;
+    let mouseY = 0;
+    let currentX = [0, 0, 0];
+    let currentY = [0, 0, 0];
+    
+    // 마우스 위치 추적
+    heroSection.addEventListener('mousemove', (e) => {
+      const rect = heroSection.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+      
+      // 각 블러 포인트가 마우스 위치에 따라 살짝 반응
+      blurElements.forEach((element, index) => {
+        if (!element) return;
+        
+        const rect = element.getBoundingClientRect();
+        const elementX = rect.left + rect.width / 2;
+        const elementY = rect.top + rect.height / 2;
+        
+        const heroRect = heroSection.getBoundingClientRect();
+        const relativeX = elementX - heroRect.left;
+        const relativeY = elementY - heroRect.top;
+        
+        // 마우스와의 거리 계산
+        const dx = mouseX - relativeX;
+        const dy = mouseY - relativeY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // 거리에 따라 반응 강도 조절 (가까울수록 더 많이 움직임)
+        const maxDistance = 400;
+        const intensity = Math.max(0, 1 - distance / maxDistance);
+        
+        // 각 블러 포인트마다 다른 반응 속도와 방향
+        const speed = [0.08, 0.12, 0.1][index];
+        const offsetX = dx * intensity * speed;
+        const offsetY = dy * intensity * speed;
+        
+        // 부드러운 움직임을 위한 easing
+        currentX[index] += (offsetX - currentX[index]) * 0.1;
+        currentY[index] += (offsetY - currentY[index]) * 0.1;
+        
+        // CSS 변수로 마우스 반응 적용 (애니메이션과 함께 작동)
+        element.style.setProperty('--mouse-x', `${currentX[index]}px`);
+        element.style.setProperty('--mouse-y', `${currentY[index]}px`);
+      });
+    });
+    
+    // 마우스가 영역을 벗어나면 원래 위치로 복귀
+    heroSection.addEventListener('mouseleave', () => {
+      blurElements.forEach((element, index) => {
+        if (!element) return;
+        
+        const interval = setInterval(() => {
+          currentX[index] *= 0.9;
+          currentY[index] *= 0.9;
+          
+          if (Math.abs(currentX[index]) < 0.1 && Math.abs(currentY[index]) < 0.1) {
+            currentX[index] = 0;
+            currentY[index] = 0;
+            clearInterval(interval);
+          }
+          
+          element.style.setProperty('--mouse-x', `${currentX[index]}px`);
+          element.style.setProperty('--mouse-y', `${currentY[index]}px`);
+        }, 16);
+      });
+    });
+  })();
+  
+  // 좋아요 토글
+  async function toggleLike(itemId, element) {
+    try {
+      const response = await fetch(`/items/${itemId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const statElement = element;
+        const countElement = statElement.querySelector('.like-count');
+        
+        if (data.liked) {
+          statElement.classList.add('liked');
+          countElement.textContent = data.likesCount;
+        } else {
+          statElement.classList.remove('liked');
+          countElement.textContent = data.likesCount;
+        }
+      } else {
+        const error = await response.json();
+        if (error.error === '로그인이 필요합니다.' || response.status === 401) {
+          showLoginRequired();
+        }
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  }
+  
+  // 비로그인 시 로그인 필요 메시지
+  function showLoginRequired() {
+    if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+      window.location.href = '/auth/signin';
+    }
+  }
+  
+  // 팔로우 토글
+  async function toggleFollow(artistId, button) {
+    try {
+      const response = await fetch(`/artist/${artistId}/follow`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        // 버튼 상태 업데이트
+        if (data.following) {
+          button.classList.add('following');
+          button.textContent = '팔로잉';
+          button.style.background = 'transparent';
+          button.style.color = '#F91536';
+        } else {
+          button.classList.remove('following');
+          button.textContent = '팔로우';
+          button.style.background = '#F91536';
+          button.style.color = '#fff';
+        }
+      } else {
+        const error = await response.json();
+        if (error.error === '로그인이 필요합니다.' || response.status === 401) {
+          showLoginRequired();
+        } else {
+          alert(error.error || '오류가 발생했습니다.');
+        }
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      alert('오류가 발생했습니다.');
+    }
+  }
+</script>
+
+<%- include('include/footer') %>
